@@ -16,7 +16,8 @@ import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 public class Client {
 
 	private static String serverAddress = null;
-	private static int port;
+	private static int serverPort;
+	private static int clientPort;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	public static final String[] PROP_LIST = { "config.properties" };
@@ -27,10 +28,11 @@ public class Client {
 		// Initialize properties
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
 		serverAddress = ApplicationProperties.getStringProperty("server");
-		port = ApplicationProperties.getIntProperty("port");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+		clientPort = ApplicationProperties.getIntProperty("client_port");
 		
 		// Send a register message to the server so that the client ip can be registered
-		MessageSender.sendRegisterMessage(serverAddress, port);
+		MessageSender.sendRegisterMessage(serverAddress, serverPort);
 		
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
@@ -38,12 +40,12 @@ public class Client {
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				MessageSender.send(serverAddress, port, clipboardText);
+				MessageSender.send(serverAddress, serverPort, clipboardText);
 			}
 		});
 		
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(ApplicationProperties.getIntProperty("port"), new MessageListener() {
+		ClipboardConnector.startListening(clientPort, new MessageListener() {
 
 			@Override
 			public void onMessageReceived(String ip, Message message) {

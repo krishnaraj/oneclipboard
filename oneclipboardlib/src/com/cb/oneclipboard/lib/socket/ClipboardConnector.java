@@ -17,33 +17,43 @@ public class ClipboardConnector {
 	private static ObjectInputStream objInputStream;
 	private static Message message;
 
-	public static void startListening(int port, MessageListener messageListener) {
-		try {
-			serverSocket = new ServerSocket(port); // Server socket
+	public static void startListening(final int port, final MessageListener messageListener) {
+		Thread listenerThread = new Thread(new Runnable() {
 
-		} catch (IOException e) {
-			System.out.println("Could not listen on port: " + port);
-		}
+			@Override
+			public void run() {
+				try {
+					serverSocket = new ServerSocket(port); // Server socket
 
-		System.out.println("Server started. Listening on port " + port);
+				} catch (IOException e) {
+					System.out.println("Could not listen on port: " + port);
+					System.exit(0);
+				}
 
-		while (true) {
-			try {
+				System.out.println("Server started. Listening on port " + port);
 
-				clientSocket = serverSocket.accept(); // accept the client connection
-				inputStream = clientSocket.getInputStream();
-				objInputStream = new ObjectInputStream(inputStream); // get the client message
-				message = (Message) objInputStream.readObject();
+				while (true) {
+					try {
 
-				inputStream.close();
-				clientSocket.close();
-				
-				String ip = clientSocket.getInetAddress().getHostAddress();
-				messageListener.onMessageReceived(ip, message);
+						clientSocket = serverSocket.accept(); // accept the client connection
+						inputStream = clientSocket.getInputStream();
+						objInputStream = new ObjectInputStream(inputStream); // get the client message
+						message = (Message) objInputStream.readObject();
 
-			} catch (Exception ex) {
-				ex.printStackTrace();
+						inputStream.close();
+						clientSocket.close();
+						
+						String ip = clientSocket.getInetAddress().getHostAddress();
+						messageListener.onMessageReceived(ip, message);
+
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
 			}
-		}
+			
+		}, "Incoming message listener thread");
+		
+		listenerThread.start();
 	}
 }

@@ -11,13 +11,21 @@ import android.view.Menu;
 import android.widget.TextView;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
+import com.cb.oneclipboard.lib.Callback;
+import com.cb.oneclipboard.lib.Message;
+import com.cb.oneclipboard.lib.MessageListener;
 import com.cb.oneclipboard.lib.MessageSender;
 import com.cb.oneclipboard.lib.PropertyLoader;
+import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class MainActivity extends Activity {
 
 	private static final String TAG = "MainActivity";
 	private static final String[] PROP_LIST = { "app.properties" };
+
+	private static String serverAddress = null;
+	private static int serverPort;
+	private static int clientPort;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,24 +33,35 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		loadPropties(PROP_LIST);
+		serverAddress = ApplicationProperties.getStringProperty("server");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+		clientPort = ApplicationProperties.getIntProperty("client_port");
 
 		TextView textView = (TextView) findViewById(R.id.text_view);
 
-		ClipboardManager clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-		clipBoard.addPrimaryClipChangedListener(new ClipboardListener(clipBoard, textView));
-		
-		register();
-	}
+		final ClipboardManager clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+		final ClipboardListener clipboardListener = new ClipboardListener(clipBoard, textView, new Callback() {
+			
+			@Override
+			public void execute(Object object) {
+				String clipboardText = (String) object;
+				MessageSender.send(serverAddress, serverPort, clipboardText);
+			}
+		});
+		clipBoard.addPrimaryClipChangedListener(clipboardListener);
 
-	private void register() {
-		try{
-			MessageSender.register(
-					ApplicationProperties.getStringProperty("server"), 
-					ApplicationProperties.getIntProperty("port"));
-		}catch(Exception e){
-			Log.e(TAG, e.getMessage(), e);
-		}
-		
+		// Send a register message to the server so that the client ip can be registered
+		MessageSender.sendRegisterMessage(serverAddress, serverPort);
+
+		// Listen for clipboard content from other clients
+		ClipboardConnector.startListening(clientPort, new MessageListener() {
+
+			@Override
+			public void onMessageReceived(String ip, Message message) {
+				clipboardListener.updateClipboardContent(message.getText());
+				clipBoard.setText(message.getText());
+			}
+		});
 	}
 
 	@Override

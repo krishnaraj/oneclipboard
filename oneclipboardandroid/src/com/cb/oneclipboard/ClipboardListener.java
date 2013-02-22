@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
+import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.MessageSender;
 
 public class ClipboardListener implements OnPrimaryClipChangedListener {
@@ -13,10 +14,14 @@ public class ClipboardListener implements OnPrimaryClipChangedListener {
 	
 	TextView textView = null;
 	ClipboardManager clipBoard = null;
+	Callback callback = null;
 	
-	public ClipboardListener(ClipboardManager clipBoard, TextView textView) {
+	private String clipboardContent = null;
+	
+	public ClipboardListener(ClipboardManager clipBoard, TextView textView, Callback callback) {
 		this.clipBoard = clipBoard;
 		this.textView = textView;
+		this.callback = callback;
 	}
 
 	@Override
@@ -26,13 +31,18 @@ public class ClipboardListener implements OnPrimaryClipChangedListener {
 		
 		if(clipText != null){
 			try{
-				MessageSender.send(
-						ApplicationProperties.getStringProperty("server"), 
-						ApplicationProperties.getIntProperty("port"),
-						clipText.toString());
+				String content = clipText.toString();
+				if(content !=null && !content.equals(clipboardContent)){
+					clipboardContent = content;
+					callback.execute(clipText.toString());
+				}
 			}catch(Exception e){
 				Log.e(TAG, e.getMessage());
 			}
 		}
+	}
+	
+	public void updateClipboardContent(String newContent){
+		this.clipboardContent = newContent;
 	}
 }

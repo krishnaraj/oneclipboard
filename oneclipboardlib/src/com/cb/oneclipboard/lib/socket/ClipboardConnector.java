@@ -1,10 +1,13 @@
-package com.cb.oneclipboard.lib;
+package com.cb.oneclipboard.lib.socket;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import com.cb.oneclipboard.lib.Message;
+import com.cb.oneclipboard.lib.MessageListener;
 
 public class ClipboardConnector {
 
@@ -14,7 +17,7 @@ public class ClipboardConnector {
 	private static ObjectInputStream objInputStream;
 	private static Message message;
 
-	public static void startListening(int port) {
+	public static void startListening(int port, MessageListener messageListener) {
 		try {
 			serverSocket = new ServerSocket(port); // Server socket
 
@@ -32,12 +35,14 @@ public class ClipboardConnector {
 				objInputStream = new ObjectInputStream(inputStream); // get the client message
 				message = (Message) objInputStream.readObject();
 
-				System.out.println(message);
 				inputStream.close();
 				clientSocket.close();
+				
+				String ip = clientSocket.getInetAddress().getHostAddress();
+				messageListener.onMessageReceived(ip, message);
 
 			} catch (Exception ex) {
-				System.out.println("Problem in message reading");
+				ex.printStackTrace();
 			}
 		}
 	}

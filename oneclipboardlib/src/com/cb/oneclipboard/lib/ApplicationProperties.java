@@ -16,7 +16,7 @@ public class ApplicationProperties {
 		return properties.getProperty(key);
 	}
 	
-	public static int getIntProperty(String key) throws Exception{
+	public static Integer getIntProperty(String key) {
 		return Integer.parseInt(getStringProperty(key));
 	}
 	

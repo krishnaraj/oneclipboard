@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 public class MessageSender {
 
 	public static void send(final String server, final int port, final String text) {
-		Message message = new Message(server, text, MessageType.TEXT);
+		Message message = new Message(text, MessageType.TEXT);
 		send(server, port, message);
 	}
 
@@ -46,8 +46,8 @@ public class MessageSender {
 		senderThread.start();
 	}
 
-	public static void register(final String server, final int port) {
-		Message message = new Message(server, "register", MessageType.REGISTER);
+	public static void sendRegisterMessage(final String server, final int port) {
+		Message message = new Message("register", MessageType.REGISTER);
 		send(server, port, message);
 	}
 }

@@ -10,11 +10,15 @@ import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 public class Server {
 
 	public static final String[] PROP_LIST = { "config.properties" };
+	private static int serverPort;
+	private static int clientPort;
 
 	public static void main(String[] args) {
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+		clientPort = ApplicationProperties.getIntProperty("client_port");
 
-		ClipboardConnector.startListening(4444, new MessageListener() {
+		ClipboardConnector.startListening(serverPort, new MessageListener() {
 
 			@Override
 			public void onMessageReceived(String ip, Message message) {
@@ -32,7 +36,7 @@ public class Server {
 	private static void broadcastMessage(String hostAddress, Message message) {
 		for (String ip : Registery.getClients()){
 			if(!hostAddress.equals(ip)){
-				MessageSender.send(ip, 4444, message);
+				MessageSender.send(ip, clientPort, message);
 			}
 		}
 		

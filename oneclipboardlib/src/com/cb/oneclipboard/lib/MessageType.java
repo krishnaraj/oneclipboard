@@ -1,6 +1,8 @@
 package com.cb.oneclipboard.lib;
 
-public enum MessageType {
+import java.io.Serializable;
+
+public enum MessageType implements Serializable{
 	REGISTER,
 	TEXT,
 	;

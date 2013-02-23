@@ -12,10 +12,11 @@ import android.widget.TextView;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
+import com.cb.oneclipboard.lib.Header;
 import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageListener;
 import com.cb.oneclipboard.lib.MessageSender;
 import com.cb.oneclipboard.lib.PropertyLoader;
+import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class MainActivity extends Activity {
@@ -25,7 +26,7 @@ public class MainActivity extends Activity {
 
 	private static String serverAddress = null;
 	private static int serverPort;
-	private static int clientPort;
+	private static Header header = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,6 @@ public class MainActivity extends Activity {
 		loadPropties(PROP_LIST);
 		serverAddress = ApplicationProperties.getStringProperty("server");
 		serverPort = ApplicationProperties.getIntProperty("server_port");
-		clientPort = ApplicationProperties.getIntProperty("client_port");
 
 		TextView textView = (TextView) findViewById(R.id.text_view);
 
@@ -45,21 +45,25 @@ public class MainActivity extends Activity {
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				MessageSender.send(serverAddress, serverPort, clipboardText);
+				MessageSender.send(header, clipboardText);
 			}
 		});
 		clipBoard.addPrimaryClipChangedListener(clipboardListener);
 
-		// Send a register message to the server so that the client ip can be registered
-		MessageSender.sendRegisterMessage(serverAddress, serverPort);
-
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(clientPort, new MessageListener() {
+		ClipboardConnector.startListening(0, new SocketListener() {
 
 			@Override
 			public void onMessageReceived(String ip, Message message) {
 				clipboardListener.updateClipboardContent(message.getText());
 				clipBoard.setText(message.getText());
+			}
+
+			@Override
+			public void onPortReady(int replyPort) {
+				// Send a register message to the server so that the client ip can be registered
+				header = new Header(serverAddress, serverPort, replyPort);
+				MessageSender.sendRegisterMessage(header);
 			}
 		});
 	}

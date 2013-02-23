@@ -5,9 +5,7 @@ import android.content.ClipboardManager.OnPrimaryClipChangedListener;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
-import com.cb.oneclipboard.lib.MessageSender;
 
 public class ClipboardListener implements OnPrimaryClipChangedListener {
 	private static final String TAG = "MainActivity";

@@ -8,8 +8,9 @@ import java.util.concurrent.TimeUnit;
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
+import com.cb.oneclipboard.lib.Header;
 import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageListener;
+import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.MessageSender;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
@@ -17,7 +18,7 @@ public class Client {
 
 	private static String serverAddress = null;
 	private static int serverPort;
-	private static int clientPort;
+	private static Header header = null;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	public static final String[] PROP_LIST = { "config.properties" };
@@ -25,14 +26,11 @@ public class Client {
 	public static void main(String[] args) {
 		final TextTransfer textTransfer = new TextTransfer();
 		
+		
 		// Initialize properties
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
 		serverAddress = ApplicationProperties.getStringProperty("server");
 		serverPort = ApplicationProperties.getIntProperty("server_port");
-		clientPort = ApplicationProperties.getIntProperty("client_port");
-		
-		// Send a register message to the server so that the client ip can be registered
-		MessageSender.sendRegisterMessage(serverAddress, serverPort);
 		
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
@@ -40,17 +38,24 @@ public class Client {
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				MessageSender.send(serverAddress, serverPort, clipboardText);
+				MessageSender.send(header, clipboardText);
 			}
 		});
 		
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(clientPort, new MessageListener() {
+		ClipboardConnector.startListening(0, new SocketListener() {
 
 			@Override
 			public void onMessageReceived(String ip, Message message) {
 				clipboardPollTask.updateClipboardContent(message.getText());
 				textTransfer.setClipboardContents(message.getText());
+			}
+
+			@Override
+			public void onPortReady(int replyPort) {
+				// Send a register message to the server so that the client ip can be registered
+				header = new Header(serverAddress, serverPort, replyPort);
+				MessageSender.sendRegisterMessage(header);
 			}
 		});
 		

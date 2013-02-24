@@ -24,7 +24,7 @@ public class MessageSender {
 				try {
 					SocketAddress sockaddr = new InetSocketAddress(server, port);
 					Socket socket = new Socket(); 
-					socket.connect(sockaddr);
+					socket.connect(sockaddr, 10000);
 					OutputStream os = socket.getOutputStream();  
 					oos = new ObjectOutputStream(os);  
 					oos.writeObject(message); // write the message to output stream

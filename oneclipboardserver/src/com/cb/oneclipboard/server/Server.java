@@ -22,6 +22,12 @@ public class Server {
 		
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
 		serverPort = ApplicationProperties.getIntProperty("server_port");
+		
+		if(args.length > 0){
+			try{
+				serverPort = Integer.parseInt(args[0]);
+			}catch(Exception e){}
+		}
 
 		ClipboardConnector.startListening(serverPort, new SocketListener() {
 

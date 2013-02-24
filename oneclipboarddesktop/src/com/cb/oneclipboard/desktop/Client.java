@@ -18,6 +18,7 @@ public class Client {
 
 	private static String serverAddress = null;
 	private static int serverPort;
+	private static int clientPort = 0;
 	private static Header header = null;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -32,6 +33,13 @@ public class Client {
 		serverAddress = ApplicationProperties.getStringProperty("server");
 		serverPort = ApplicationProperties.getIntProperty("server_port");
 		
+		if (args.length > 0) {
+			try {
+				clientPort = Integer.parseInt(args[0]);
+			} catch (Exception e) {
+			}
+		}
+		
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
 
@@ -43,7 +51,7 @@ public class Client {
 		});
 		
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(0, new SocketListener() {
+		ClipboardConnector.startListening(clientPort, new SocketListener() {
 
 			@Override
 			public void onMessageReceived(String ip, Message message) {

@@ -39,7 +39,8 @@ public class ServerThread extends Thread {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
+			Registery.getClientSockets().remove(this);
 		}
 	}
 }

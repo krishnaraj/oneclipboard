@@ -21,8 +21,10 @@ public class ClipboardConnector {
 			public void run() {
 				try {
 					clientSocket = new Socket(server, port);
-					objInputStream = new ObjectInputStream(clientSocket.getInputStream());
+					/* The objOutputStream needs to created and flushed before the objInputStream can be created*/
 					objOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+					objOutputStream.flush();
+					objInputStream = new ObjectInputStream(clientSocket.getInputStream());
 					System.out.println("connected to " + server + ":" + port);
 					
 					while(listening){

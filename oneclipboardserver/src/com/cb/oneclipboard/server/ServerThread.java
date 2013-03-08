@@ -16,6 +16,7 @@ public class ServerThread extends Thread {
 		this.socket = socket;
 		objInputStream = new ObjectInputStream(socket.getInputStream());
 		objOutputStream = new ObjectOutputStream(socket.getOutputStream());
+		objOutputStream.flush();
 	}
 
 	@Override

@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
-import com.cb.oneclipboard.lib.Header;
 import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageSender;
 import com.cb.oneclipboard.lib.PropertyLoader;
 import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
@@ -26,7 +24,6 @@ public class MainActivity extends Activity {
 
 	private static String serverAddress = null;
 	private static int serverPort;
-	private static Header header = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -41,30 +38,24 @@ public class MainActivity extends Activity {
 
 		final ClipboardManager clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 		final ClipboardListener clipboardListener = new ClipboardListener(clipBoard, textView, new Callback() {
-			
+
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				MessageSender.send(header, clipboardText);
+				ClipboardConnector.send(new Message(clipboardText));
 			}
 		});
 		clipBoard.addPrimaryClipChangedListener(clipboardListener);
 
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(0, new SocketListener() {
+		ClipboardConnector.connect(serverAddress, serverPort, new SocketListener() {
 
 			@Override
-			public void onMessageReceived(String ip, Message message) {
+			public void onMessageReceived(Message message) {
 				clipboardListener.updateClipboardContent(message.getText());
 				clipBoard.setText(message.getText());
 			}
 
-			@Override
-			public void onPortReady(int replyPort) {
-				// Send a register message to the server so that the client ip can be registered
-				header = new Header(serverAddress, serverPort, replyPort);
-				MessageSender.sendRegisterMessage(header);
-			}
 		});
 	}
 

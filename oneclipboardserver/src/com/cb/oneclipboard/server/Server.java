@@ -3,14 +3,13 @@ package com.cb.oneclipboard.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
-import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageSender;
-import com.cb.oneclipboard.lib.SocketListener;
-import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class Server {
 
@@ -19,7 +18,28 @@ public class Server {
 
 	public static void main(String[] args) throws Exception {
 		pipeSysoutToFile();
+		init(args);
 
+		ServerSocket serverSocket = null;
+		boolean listening = true;
+
+		try {
+			serverSocket = new ServerSocket(serverPort);
+			System.out.println("Server started on port " + serverPort);
+		} catch (IOException e) {
+			System.err.println("Could not listen on port: " + serverPort);
+			System.exit(-1);
+		}
+
+		while (listening) {
+			ServerThread serverThread = new ServerThread(serverSocket.accept());
+			Registery.register(serverThread);
+			serverThread.start();
+		}
+
+	}
+
+	private static void init(String[] args) {
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
 		serverPort = ApplicationProperties.getIntProperty("server_port");
 
@@ -29,42 +49,6 @@ public class Server {
 			} catch (Exception e) {
 			}
 		}
-
-		ClipboardConnector.startListening(serverPort, new SocketListener() {
-
-			@Override
-			public void onMessageReceived(String ip, Message message) {
-				switch (message.getMessageType()) {
-				case REGISTER:
-					Registery.register(ip, message.getReplyPort());
-					break;
-				case TEXT:
-					broadcastMessage(ip, message);
-					break;
-				default:
-					System.out.println("Unknown message type: " + message.getMessageType());
-				}
-
-			}
-
-			@Override
-			public void onPortReady(int replyPort) {
-
-			}
-		});
-
-	}
-
-	private static void broadcastMessage(String hostAddress, Message message) {
-		for (ClientData clientData : Registery.getClients()) {
-			String source = hostAddress + ":" + message.getReplyPort();
-			String destination = clientData.getIp() + ":" + clientData.getPort();
-			if (!source.equals(destination)) {
-				System.out.println("Broadcasting '" + message.getText() + "' to " + clientData.getIp() + ":" + clientData.getPort());
-				MessageSender.send(clientData.getIp(), clientData.getPort(), message);
-			}
-		}
-
 	}
 
 	private static void pipeSysoutToFile() throws FileNotFoundException {

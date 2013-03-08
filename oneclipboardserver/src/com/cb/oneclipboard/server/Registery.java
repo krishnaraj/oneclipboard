@@ -1,17 +1,16 @@
 package com.cb.oneclipboard.server;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 public class Registery {
-	private static List<ClientData> clients = new ArrayList<>();
+	private static Vector<ServerThread> clientSockets = new Vector<>();
 	
-	public static void register(String ip, int port){
-		System.out.println("Registering " + ip + ":" + port);
-		clients.add(new ClientData(ip, port));
+	public static void register(ServerThread serverThread){
+		clientSockets.add(serverThread);
 	}
 	
-	public static List<ClientData> getClients(){
-		return clients;
+	public static Vector<ServerThread> getClientSockets(){
+		return clientSockets;
 	}
+	
 }

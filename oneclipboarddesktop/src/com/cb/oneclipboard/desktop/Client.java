@@ -8,18 +8,14 @@ import java.util.concurrent.TimeUnit;
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
-import com.cb.oneclipboard.lib.Header;
 import com.cb.oneclipboard.lib.Message;
 import com.cb.oneclipboard.lib.SocketListener;
-import com.cb.oneclipboard.lib.MessageSender;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class Client {
 
 	private static String serverAddress = null;
 	private static int serverPort;
-	private static int clientPort = 0;
-	private static Header header = null;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	public static final String[] PROP_LIST = { "config.properties" };
@@ -35,7 +31,7 @@ public class Client {
 		
 		if (args.length > 0) {
 			try {
-				clientPort = Integer.parseInt(args[0]);
+				serverPort = Integer.parseInt(args[0]);
 			} catch (Exception e) {
 			}
 		}
@@ -46,29 +42,23 @@ public class Client {
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				MessageSender.send(header, clipboardText);
+				ClipboardConnector.send(new Message(clipboardText));
 			}
 		});
 		
 		// Listen for clipboard content from other clients
-		ClipboardConnector.startListening(clientPort, new SocketListener() {
+		ClipboardConnector.connect(serverAddress, serverPort, new SocketListener() {
 
 			@Override
-			public void onMessageReceived(String ip, Message message) {
+			public void onMessageReceived(Message message) {
 				clipboardPollTask.updateClipboardContent(message.getText());
 				textTransfer.setClipboardContents(message.getText());
 			}
 
-			@Override
-			public void onPortReady(int replyPort) {
-				// Send a register message to the server so that the client ip can be registered
-				header = new Header(serverAddress, serverPort, replyPort);
-				MessageSender.sendRegisterMessage(header);
-			}
 		});
 		
 		// Run the poll task every 2 seconds
-		final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 0, 2, TimeUnit.SECONDS);
+		final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
 
 	}
 }

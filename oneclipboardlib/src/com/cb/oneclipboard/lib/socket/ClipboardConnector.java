@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import com.cb.oneclipboard.lib.Message;
 import com.cb.oneclipboard.lib.SocketListener;
+import com.cb.oneclipboard.lib.User;
 
 public class ClipboardConnector {
 
@@ -13,7 +14,7 @@ public class ClipboardConnector {
 	private static ObjectInputStream objInputStream;
 	private static ObjectOutputStream objOutputStream;
 
-	public static void connect(final String server, final int port, final SocketListener messageListener) {
+	public static void connect(final String server, final int port, User user, final SocketListener messageListener) {
 		final boolean listening = true;
 		Thread listenerThread = new Thread(new Runnable() {
 
@@ -26,6 +27,7 @@ public class ClipboardConnector {
 					objOutputStream.flush();
 					objInputStream = new ObjectInputStream(clientSocket.getInputStream());
 					System.out.println("connected to " + server + ":" + port);
+					messageListener.onConnect();
 					
 					while(listening){
 						Message message = (Message) objInputStream.readObject();

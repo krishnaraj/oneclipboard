@@ -13,7 +13,9 @@ import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
 import com.cb.oneclipboard.lib.Message;
+import com.cb.oneclipboard.lib.MessageType;
 import com.cb.oneclipboard.lib.SocketListener;
+import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class Client {
@@ -21,38 +23,27 @@ public class Client {
 	private static String serverAddress = null;
 	private static int serverPort;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private static User user = null;
 
 	public static final String[] PROP_LIST = { "config.properties" };
 
 	public static void main(String[] args) {
-		pipeSysoutToFile();
 		final TextTransfer textTransfer = new TextTransfer();
 		
-		
-		// Initialize properties
-		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
-		
-		if (args.length > 0) {
-			try {
-				serverPort = Integer.parseInt(args[0]);
-			} catch (Exception e) {
-			}
-		}
-		
+		init(args);
+
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
 
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				ClipboardConnector.send(new Message(clipboardText));
+				ClipboardConnector.send(new Message(clipboardText, user));
 			}
 		});
-		
+
 		// Listen for clipboard content from other clients
-		ClipboardConnector.connect(serverAddress, serverPort, new SocketListener() {
+		ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
 
 			@Override
 			public void onMessageReceived(Message message) {
@@ -60,13 +51,37 @@ public class Client {
 				textTransfer.setClipboardContents(message.getText());
 			}
 
+			@Override
+			public void onConnect() {
+				ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
+			}
+
 		});
-		
+
 		// Run the poll task every 2 seconds
 		final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
 
 	}
-	
+
+	public static void init(String args[]) {
+		pipeSysoutToFile();
+		
+		// Initialize properties
+		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
+		serverAddress = ApplicationProperties.getStringProperty("server");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+
+		if (args.length > 0) {
+			try {
+				serverPort = Integer.parseInt(args[0]);
+			} catch (Exception e) {
+			}
+		}
+		
+		// Set user
+		user = new User("testuser", "testpass");
+	}
+
 	private static void pipeSysoutToFile() {
 		try {
 			String logFileName = System.getProperty("user.home") + File.separator + "oneclipboard.log";

@@ -27,14 +27,15 @@ public class ServerThread extends Thread {
 		try {
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
-				System.out.println("Received '" + message.getText() + "' from " + socket.getInetAddress());
+				System.out.println(String.format("Received '%s' from %s at %s", message.getText(), user.getUserName(), getHostAddress()));
 
 				if (message.getMessageType() == MessageType.REGISTER) {
 					user = message.getUser();
 				} else if (message.getMessageType() == MessageType.CLIPBOARD_TEXT && user != null) { // if we haven't received the register message than ignore the text messages
 					for (ServerThread serverThread : Registery.getClientSockets()) {
 						if (!this.socket.equals(serverThread.socket) && this.user.equals(serverThread.user)) {
-							System.out.println("Sending '" + message.getText() + "' to " + serverThread.socket.getInetAddress());
+							System.out.println(String.format("Sending '%s' to %s at %s", message.getText(),
+									serverThread.user.getUserName(), serverThread.getHostAddress()));
 							try {
 								serverThread.objOutputStream.writeObject(message);
 								serverThread.objOutputStream.flush();

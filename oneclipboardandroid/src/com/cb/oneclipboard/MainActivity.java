@@ -13,8 +13,10 @@ import android.widget.TextView;
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.Message;
+import com.cb.oneclipboard.lib.MessageType;
 import com.cb.oneclipboard.lib.PropertyLoader;
 import com.cb.oneclipboard.lib.SocketListener;
+import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
 public class MainActivity extends Activity {
@@ -24,15 +26,14 @@ public class MainActivity extends Activity {
 
 	private static String serverAddress = null;
 	private static int serverPort;
+	private static User user = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		loadPropties(PROP_LIST);
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
+		init();
 
 		TextView textView = (TextView) findViewById(R.id.text_view);
 
@@ -42,13 +43,13 @@ public class MainActivity extends Activity {
 			@Override
 			public void execute(Object object) {
 				String clipboardText = (String) object;
-				ClipboardConnector.send(new Message(clipboardText));
+				ClipboardConnector.send(new Message(clipboardText, user));
 			}
 		});
 		clipBoard.addPrimaryClipChangedListener(clipboardListener);
 
 		// Listen for clipboard content from other clients
-		ClipboardConnector.connect(serverAddress, serverPort, new SocketListener() {
+		ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
 
 			@Override
 			public void onMessageReceived(Message message) {
@@ -56,7 +57,21 @@ public class MainActivity extends Activity {
 				clipBoard.setText(message.getText());
 			}
 
+			@Override
+			public void onConnect() {
+				ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
+			}
+
 		});
+	}
+
+	public void init() {
+		loadPropties(PROP_LIST);
+		serverAddress = ApplicationProperties.getStringProperty("server");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+
+		// Set user
+		user = new User("testuser", "testpass");
 	}
 
 	@Override

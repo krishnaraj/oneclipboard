@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">One Clipboard</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_world">Your clipboard text will appear here.</string>
     <string name="menu_settings">Settings</string>
 
 </resources>

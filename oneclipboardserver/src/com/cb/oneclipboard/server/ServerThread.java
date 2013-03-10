@@ -27,7 +27,7 @@ public class ServerThread extends Thread {
 		try {
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
-				System.out.println(String.format("Received '%s' from %s at %s", message.getText(), user.getUserName(), getHostAddress()));
+				System.out.println(String.format("Received '%s' from %s at %s", message.getText(), message.getUser().getUserName(), getHostAddress()));
 
 				if (message.getMessageType() == MessageType.REGISTER) {
 					user = message.getUser();

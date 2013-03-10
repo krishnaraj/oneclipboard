@@ -43,4 +43,8 @@ public class ServerThread extends Thread {
 			Registery.getClientSockets().remove(this);
 		}
 	}
+	
+	public String getHostAddress(){
+		return socket.getInetAddress().getHostAddress();
+	}
 }

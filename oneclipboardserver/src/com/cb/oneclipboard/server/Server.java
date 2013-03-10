@@ -10,6 +10,7 @@ import java.net.Socket;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
+import com.cb.oneclipboard.server.admin.AdminServer;
 
 public class Server {
 
@@ -17,7 +18,7 @@ public class Server {
 	private static int serverPort;
 
 	public static void main(String[] args) throws Exception {
-		pipeSysoutToFile();
+		//pipeSysoutToFile();
 		init(args);
 
 		ServerSocket serverSocket = null;
@@ -40,6 +41,7 @@ public class Server {
 	}
 
 	private static void init(String[] args) {
+		// Load properties
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
 		serverPort = ApplicationProperties.getIntProperty("server_port");
 
@@ -48,6 +50,13 @@ public class Server {
 				serverPort = Integer.parseInt(args[0]);
 			} catch (Exception e) {
 			}
+		}
+		
+		// Start admin server
+		try {
+			AdminServer.start(args);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

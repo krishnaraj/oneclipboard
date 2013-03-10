@@ -1,5 +1,9 @@
 package com.cb.oneclipboard.desktop;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -21,6 +25,7 @@ public class Client {
 	public static final String[] PROP_LIST = { "config.properties" };
 
 	public static void main(String[] args) {
+		pipeSysoutToFile();
 		final TextTransfer textTransfer = new TextTransfer();
 		
 		
@@ -60,5 +65,17 @@ public class Client {
 		// Run the poll task every 2 seconds
 		final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
 
+	}
+	
+	private static void pipeSysoutToFile() {
+		try {
+			String logFileName = System.getProperty("user.home") + File.separator + "oneclipboard.log";
+			File file = new File(logFileName);
+			PrintStream printStream = new PrintStream(new FileOutputStream(file));
+			System.setOut(printStream);
+			System.setErr(printStream);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }

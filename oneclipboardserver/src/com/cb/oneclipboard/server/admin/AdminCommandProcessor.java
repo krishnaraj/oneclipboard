@@ -32,7 +32,7 @@ public class AdminCommandProcessor {
 			result = "\nNone.";
 		} else {
 			for (ServerThread serverThread : Registery.getClientSockets()) {
-				result = "\n" + serverThread.getHostAddress();
+				result = result + "\n" + serverThread.getHostAddress();
 			}
 		}
 		

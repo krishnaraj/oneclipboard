@@ -5,13 +5,16 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import com.cb.oneclipboard.lib.Message;
+import com.cb.oneclipboard.lib.MessageType;
+import com.cb.oneclipboard.lib.User;
 
 public class ServerThread extends Thread {
 	Socket socket = null;
 	ObjectInputStream objInputStream = null;
 	ObjectOutputStream objOutputStream = null;
+	User user = null;
 
-	public ServerThread(Socket socket) throws Exception{
+	public ServerThread(Socket socket) throws Exception {
 		super("ServerThread");
 		this.socket = socket;
 		objInputStream = new ObjectInputStream(socket.getInputStream());
@@ -25,14 +28,19 @@ public class ServerThread extends Thread {
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
 				System.out.println("Received '" + message.getText() + "' from " + socket.getInetAddress());
-				for (ServerThread serverThread : Registery.getClientSockets()) {
-					if (!this.socket.equals(serverThread.socket)) {
-						System.out.println("Sending '" + message.getText() + "' to " + serverThread.socket.getInetAddress());
-						try {
-							serverThread.objOutputStream.writeObject(message);
-							serverThread.objOutputStream.flush();
-						} catch (Exception ex) {
-							ex.printStackTrace();
+
+				if (message.getMessageType() == MessageType.REGISTER) {
+					user = message.getUser();
+				} else if (message.getMessageType() == MessageType.CLIPBOARD_TEXT && user != null) { // if we haven't received the register message than ignore the text messages
+					for (ServerThread serverThread : Registery.getClientSockets()) {
+						if (!this.socket.equals(serverThread.socket) && this.user.equals(serverThread.user)) {
+							System.out.println("Sending '" + message.getText() + "' to " + serverThread.socket.getInetAddress());
+							try {
+								serverThread.objOutputStream.writeObject(message);
+								serverThread.objOutputStream.flush();
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
 						}
 					}
 				}
@@ -43,8 +51,8 @@ public class ServerThread extends Thread {
 			Registery.getClientSockets().remove(this);
 		}
 	}
-	
-	public String getHostAddress(){
+
+	public String getHostAddress() {
 		return socket.getInetAddress().getHostAddress();
 	}
 }

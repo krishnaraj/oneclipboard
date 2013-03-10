@@ -15,8 +15,11 @@ public class AdminCommandProcessor {
 		case "client list":
 			output = getFormattedClientList();
 			break;
+		case "client count":
+			output = String.valueOf(getClientCount());
+			break;
 		case "exit":
-			output = "exit"; 
+			output = "exit";
 			break;
 		default:
 			output = "Unknown command.";
@@ -35,7 +38,11 @@ public class AdminCommandProcessor {
 				result = result + "\n" + serverThread.getHostAddress();
 			}
 		}
-		
+
 		return result;
+	}
+
+	private int getClientCount() {
+		return Registery.getClientSockets().size();
 	}
 }

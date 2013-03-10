@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
@@ -18,7 +17,7 @@ public class Server {
 	private static int serverPort;
 
 	public static void main(String[] args) throws Exception {
-		//pipeSysoutToFile();
+		pipeSysoutToFile();
 		init(args);
 
 		ServerSocket serverSocket = null;

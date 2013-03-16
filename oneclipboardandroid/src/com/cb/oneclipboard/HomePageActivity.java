@@ -3,13 +3,6 @@ package com.cb.oneclipboard;
 import java.io.InputStream;
 import java.util.Properties;
 
-import android.app.Activity;
-import android.content.ClipboardManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.widget.TextView;
-
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.Message;
@@ -19,9 +12,16 @@ import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
-public class LoginActivity extends Activity {
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.ClipboardManager;
+import android.util.Log;
+import android.view.Menu;
+import android.widget.TextView;
 
-	private static final String TAG = "LoginActivity";
+public class HomePageActivity extends Activity {
+
+	private static final String TAG = "HomePageActivity";
 	private static final String[] PROP_LIST = { "app.properties" };
 
 	private static String serverAddress = null;
@@ -31,12 +31,29 @@ public class LoginActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.login);
-
+		setContentView(R.layout.home_page);
 		init();
+	}
 
-		TextView textView = (TextView) findViewById(R.id.text_view);
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_home_page, menu);
+		return true;
+	}
 
+	public void init() {
+		loadPropties(PROP_LIST);
+		serverAddress = ApplicationProperties.getStringProperty("server");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+
+		// Set the user
+		Bundle bundle = getIntent().getExtras();
+		user = new User(bundle.getString("username"), bundle.getString("password"));
+	}
+
+	public void start() {
+		TextView textView = (TextView) findViewById(R.id.homePageTextView);
 		final ClipboardManager clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 		final ClipboardListener clipboardListener = new ClipboardListener(clipBoard, textView, new Callback() {
 
@@ -63,22 +80,6 @@ public class LoginActivity extends Activity {
 			}
 
 		});
-	}
-
-	public void init() {
-		loadPropties(PROP_LIST);
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
-
-		// Set user
-		user = new User("testuser", "testpass");
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
 	}
 
 	private void loadPropties(String[] fileList) {

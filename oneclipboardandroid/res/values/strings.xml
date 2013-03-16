@@ -7,5 +7,8 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="home_page_message">Your clipboard text will appear here.</string>
+    <string name="title_activity_home_page">HomePageActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class Tray {
-	public static void init(String[] args) {
+	public static void main(String[] args) {
 		/* Use an appropriate Look and Feel */
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -33,7 +33,7 @@ public class Tray {
 		});
 	}
 
-	private static void createAndShowGUI() {
+	public static void createAndShowGUI() {
 		// Check the SystemTray support
 		if (!SystemTray.isSupported()) {
 			System.out.println("SystemTray is not supported");

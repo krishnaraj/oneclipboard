@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.cb.oneclipboard.desktop.gui.ApplicationUI;
 import com.cb.oneclipboard.desktop.gui.Tray;
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
@@ -89,7 +90,7 @@ public class Client {
 			}
 		}
 
-		Tray.init(args);
+		ApplicationUI.show();
 
 		// Set user
 		user = new User("testuser", "testpass");

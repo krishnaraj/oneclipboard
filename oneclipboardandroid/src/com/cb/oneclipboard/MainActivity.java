@@ -1,101 +1,42 @@
 package com.cb.oneclipboard;
 
-import java.io.InputStream;
-import java.util.Properties;
-
 import android.app.Activity;
-import android.content.ClipboardManager;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-import com.cb.oneclipboard.lib.ApplicationProperties;
-import com.cb.oneclipboard.lib.Callback;
-import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageType;
-import com.cb.oneclipboard.lib.PropertyLoader;
-import com.cb.oneclipboard.lib.SocketListener;
-import com.cb.oneclipboard.lib.User;
-import com.cb.oneclipboard.lib.socket.ClipboardConnector;
-
 public class MainActivity extends Activity {
-
-	private static final String TAG = "MainActivity";
-	private static final String[] PROP_LIST = { "app.properties" };
-
-	private static String serverAddress = null;
-	private static int serverPort;
-	private static User user = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.login);
 
-		init();
-
-		TextView textView = (TextView) findViewById(R.id.text_view);
-
-		final ClipboardManager clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-		final ClipboardListener clipboardListener = new ClipboardListener(clipBoard, textView, new Callback() {
+		Button loginButton = (Button) findViewById(R.id.btnLogin);
+		loginButton.setOnClickListener(new View.OnClickListener() {
 
 			@Override
-			public void execute(Object object) {
-				String clipboardText = (String) object;
-				ClipboardConnector.send(new Message(clipboardText, user));
-			}
-		});
-		clipBoard.addPrimaryClipChangedListener(clipboardListener);
+			public void onClick(View arg0) {
+				TextView usernameField = (TextView) findViewById(R.id.usernameField);
+				TextView passwordField = (TextView) findViewById(R.id.passwordField);
+				String username = usernameField.getText().toString().trim();
+				String password = passwordField.getText().toString().trim();
 
-		// Listen for clipboard content from other clients
-		ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+				if (username.length() > 0 && password.length() > 0) {
+					Bundle bundle = new Bundle();
+					bundle.putString("username", username);
+					bundle.putString("password", password);
 
-			@Override
-			public void onMessageReceived(Message message) {
-				clipboardListener.updateClipboardContent(message.getText());
-				clipBoard.setText(message.getText());
-			}
+					Intent i = new Intent(MainActivity.this, HomePageActivity.class);
+					i.putExtras(bundle);
 
-			@Override
-			public void onConnect() {
-				ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-			}
-
-		});
-	}
-
-	public void init() {
-		loadPropties(PROP_LIST);
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
-
-		// Set user
-		user = new User("testuser", "testpass");
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
-	}
-
-	private void loadPropties(String[] fileList) {
-		PropertyLoader loader = new PropertyLoader() {
-
-			@Override
-			public void load(Properties properties, String fileName) {
-				try {
-					InputStream fileStream = getAssets().open(fileName);
-					properties.load(fileStream);
-					fileStream.close();
-				} catch (Exception e) {
-					Log.d(TAG, e.getMessage());
+					startActivity(i);
 				}
 			}
-		};
-		ApplicationProperties.loadProperties(fileList, loader);
-	}
 
+		});
+
+	}
 }

@@ -19,9 +19,9 @@ import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 
-public class MainActivity extends Activity {
+public class LoginActivity extends Activity {
 
-	private static final String TAG = "MainActivity";
+	private static final String TAG = "LoginActivity";
 	private static final String[] PROP_LIST = { "app.properties" };
 
 	private static String serverAddress = null;
@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.login);
 
 		init();
 

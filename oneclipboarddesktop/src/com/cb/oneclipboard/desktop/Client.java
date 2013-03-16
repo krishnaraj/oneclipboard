@@ -1,5 +1,7 @@
 package com.cb.oneclipboard.desktop;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.gui.ApplicationUI;
 import com.cb.oneclipboard.desktop.gui.Tray;
 import com.cb.oneclipboard.lib.ApplicationProperties;
@@ -24,8 +27,10 @@ import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
 
-public class Client {
+public class Client implements PropertyChangeListener {
 
+	private static Client client = null;
+	private static ApplicationUI ui = null;
 	private static String serverAddress = null;
 	private static int serverPort;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -34,9 +39,51 @@ public class Client {
 	public static final String[] PROP_LIST = { "config.properties" };
 
 	public static void main(String[] args) {
-		final TextTransfer textTransfer = new TextTransfer();
+		client = new Client();
+		client.init(args);
+	}
 
-		init(args);
+	public void init(String args[]) {
+		pipeSysoutToFile();
+
+		try {
+			lock();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Initialize properties
+		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
+		serverAddress = ApplicationProperties.getStringProperty("server");
+		serverPort = ApplicationProperties.getIntProperty("server_port");
+
+		if (args.length > 0) {
+			try {
+				serverPort = Integer.parseInt(args[0]);
+			} catch (Exception e) {
+			}
+		}
+		
+		ui = new ApplicationUI();
+		ui.addPropertyChangeListener(this);
+		ui.show();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		String propertyName = evt.getPropertyName();
+		Property property = Property.valueOf(propertyName);
+
+		switch (property) {
+		case LOGIN:
+			user = (User) evt.getNewValue();
+			client.start();
+			break;
+		}
+	}
+
+	public void start() {
+		final TextTransfer textTransfer = new TextTransfer();
 
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
@@ -69,37 +116,10 @@ public class Client {
 
 	}
 
-	public static void init(String args[]) {
-		pipeSysoutToFile();
-
-		try {
-			lock();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// Initialize properties
-		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
-
-		if (args.length > 0) {
-			try {
-				serverPort = Integer.parseInt(args[0]);
-			} catch (Exception e) {
-			}
-		}
-
-		ApplicationUI.show();
-
-		// Set user
-		user = new User("testuser", "testpass");
-	}
-
 	static String lockFileName = System.getProperty("user.home") + File.separator + "oneclipboard.lock";
 	static JavaSysMon monitor = new JavaSysMon();
 
-	public static void lock() throws Exception {
+	public void lock() throws Exception {
 		int currentPid = monitor.currentPid();
 		if (isRunning()) {
 			System.err.println("Application already running");
@@ -116,7 +136,7 @@ public class Client {
 
 	}
 
-	public static boolean isRunning() {
+	public boolean isRunning() {
 		File lockFile = new File(lockFileName);
 		boolean isRunning = false;
 		if (lockFile.exists()) {
@@ -131,7 +151,7 @@ public class Client {
 		return isRunning;
 	}
 
-	private static int getPID(File lockFile) {
+	private int getPID(File lockFile) {
 		int pid = -1;
 		// Read PID
 		BufferedReader reader = null;
@@ -150,7 +170,7 @@ public class Client {
 		return pid;
 	}
 
-	private static void pipeSysoutToFile() {
+	private void pipeSysoutToFile() {
 		try {
 			String logFileName = System.getProperty("user.home") + File.separator + "oneclipboard.log";
 			File file = new File(logFileName);

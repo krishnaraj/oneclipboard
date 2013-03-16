@@ -11,75 +11,56 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JPanel;
+import java.awt.Component;
+import javax.swing.JPasswordField;
 
 public class LoginDialog extends JDialog {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private JTextField userNameTxt;
-	private JTextField passwordTxt;
+	private JTextField textField;
+	private JPasswordField passwordField;
 	
 	public LoginDialog() {
+		setModal(true);
 		getContentPane().setBackground(Color.BLACK);
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		getContentPane().setSize(new Dimension(400, 300));
+		getContentPane().setLayout(null);
+		
+		JLabel lblEnterAnyUsernamepassword = new JLabel("<html>Enter any username/password but make sure all your other devices share the same.</html>");
+		lblEnterAnyUsernamepassword.setAlignmentY(Component.TOP_ALIGNMENT);
+		lblEnterAnyUsernamepassword.setForeground(Color.WHITE);
+		lblEnterAnyUsernamepassword.setBounds(12, 0, 365, 68);
+		getContentPane().add(lblEnterAnyUsernamepassword);
+		
+		JLabel lblUsername = new JLabel("Username");
+		lblUsername.setForeground(Color.WHITE);
+		lblUsername.setBounds(12, 62, 102, 15);
+		getContentPane().add(lblUsername);
+		
+		textField = new JTextField();
+		textField.setBounds(104, 60, 114, 19);
+		getContentPane().add(textField);
+		textField.setColumns(10);
+		
+		JLabel lblPassword = new JLabel("Password");
+		lblPassword.setForeground(Color.WHITE);
+		lblPassword.setBounds(12, 89, 70, 15);
+		getContentPane().add(lblPassword);
+		
+		passwordField = new JPasswordField();
+		passwordField.setColumns(10);
+		passwordField.setBounds(104, 89, 114, 19);
+		getContentPane().add(passwordField);
+		
+		JButton btnLogin = new JButton("Login");
+		btnLogin.setBounds(12, 116, 117, 25);
+		getContentPane().add(btnLogin);
 		setSize(new Dimension(399, 156));
 		setResizable(false);
 		setPreferredSize(new Dimension(100, 100));
-		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{197, 197, 0};
-		gridBagLayout.rowHeights = new int[]{45, 45, 45, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-		getContentPane().setLayout(gridBagLayout);
-		
-		JLabel usenameLabel = new JLabel("Username");
-		usenameLabel.setBackground(Color.BLACK);
-		usenameLabel.setForeground(Color.WHITE);
-		GridBagConstraints gbc_usenameLabel = new GridBagConstraints();
-		gbc_usenameLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_usenameLabel.gridx = 0;
-		gbc_usenameLabel.gridy = 0;
-		getContentPane().add(usenameLabel, gbc_usenameLabel);
-		
-		userNameTxt = new JTextField();
-		GridBagConstraints gbc_userNameTxt = new GridBagConstraints();
-		gbc_userNameTxt.fill = GridBagConstraints.BOTH;
-		gbc_userNameTxt.insets = new Insets(0, 0, 5, 0);
-		gbc_userNameTxt.gridx = 1;
-		gbc_userNameTxt.gridy = 0;
-		getContentPane().add(userNameTxt, gbc_userNameTxt);
-		userNameTxt.setColumns(10);
-		
-		JLabel passwordLabel = new JLabel("Password");
-		passwordLabel.setForeground(Color.WHITE);
-		GridBagConstraints gbc_passwordLabel = new GridBagConstraints();
-		gbc_passwordLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_passwordLabel.gridx = 0;
-		gbc_passwordLabel.gridy = 1;
-		getContentPane().add(passwordLabel, gbc_passwordLabel);
-		
-		passwordTxt = new JTextField();
-		GridBagConstraints gbc_passwordTxt = new GridBagConstraints();
-		gbc_passwordTxt.fill = GridBagConstraints.BOTH;
-		gbc_passwordTxt.insets = new Insets(0, 0, 5, 0);
-		gbc_passwordTxt.gridx = 1;
-		gbc_passwordTxt.gridy = 1;
-		getContentPane().add(passwordTxt, gbc_passwordTxt);
-		passwordTxt.setColumns(10);
-		
-		JButton loginButton = new JButton("Login");
-		loginButton.setActionCommand("Login");
-		GridBagConstraints gbc_loginButton = new GridBagConstraints();
-		gbc_loginButton.insets = new Insets(0, 0, 5, 0);
-		gbc_loginButton.gridwidth = 2;
-		gbc_loginButton.fill = GridBagConstraints.VERTICAL;
-		gbc_loginButton.gridx = 0;
-		gbc_loginButton.gridy = 2;
-		getContentPane().add(loginButton, gbc_loginButton);
 	}
-
 }

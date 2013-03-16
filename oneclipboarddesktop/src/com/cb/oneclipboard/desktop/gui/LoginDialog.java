@@ -14,10 +14,16 @@ import javax.swing.JPanel;
 import java.awt.Component;
 import javax.swing.JPasswordField;
 
+import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
+import com.cb.oneclipboard.desktop.Client;
 import com.cb.oneclipboard.lib.User;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 public class LoginDialog extends JDialog {
 	/**
@@ -26,7 +32,6 @@ public class LoginDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private JTextField textField;
 	private JPasswordField passwordField;
-	private User user = null;
 
 	public LoginDialog() {
 		setModal(true);
@@ -71,8 +76,8 @@ public class LoginDialog extends JDialog {
 				if (userName.trim().length() == 0 || password.trim().length() == 0) {
 					return;
 				}
-				user = new User(userName, password);
 				LoginDialog.this.dispose();
+				Client.propertyChangeSupport.firePropertyChange(Property.LOGIN, null, new User(userName, password));
 			}
 		});
 		btnLogin.setBounds(12, 116, 117, 25);
@@ -80,9 +85,5 @@ public class LoginDialog extends JDialog {
 		setSize(new Dimension(399, 156));
 		setResizable(false);
 		setPreferredSize(new Dimension(100, 100));
-	}
-	
-	public User getUser(){
-		return user;
 	}
 }

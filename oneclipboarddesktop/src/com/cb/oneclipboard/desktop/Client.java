@@ -30,11 +30,12 @@ import com.jezhumble.javasysmon.OsProcess;
 public class Client implements PropertyChangeListener {
 
 	private static Client client = null;
-	private static ApplicationUI ui = null;
+	private static ApplicationUI ui = new ApplicationUI();
 	private static String serverAddress = null;
 	private static int serverPort;
 	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private static User user = null;
+	public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport(); 
 
 	public static final String[] PROP_LIST = { "config.properties" };
 
@@ -64,9 +65,9 @@ public class Client implements PropertyChangeListener {
 			}
 		}
 		
-		ui = new ApplicationUI();
-		ui.addPropertyChangeListener(this);
-		ui.show();
+		propertyChangeSupport.addPropertyChangeListener(this);
+		
+		ui.showLogin();
 	}
 
 	@Override
@@ -78,6 +79,7 @@ public class Client implements PropertyChangeListener {
 		case LOGIN:
 			user = (User) evt.getNewValue();
 			client.start();
+			ui.createAndShowTray();
 			break;
 		}
 	}

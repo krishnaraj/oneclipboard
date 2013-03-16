@@ -1,14 +1,19 @@
 package com.cb.oneclipboard.desktop;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.cb.oneclipboard.desktop.gui.Tray;
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.Callback;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
@@ -17,6 +22,8 @@ import com.cb.oneclipboard.lib.MessageType;
 import com.cb.oneclipboard.lib.SocketListener;
 import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
+import com.jezhumble.javasysmon.JavaSysMon;
+import com.sun.org.apache.bcel.internal.generic.LCONST;
 
 public class Client {
 
@@ -78,8 +85,46 @@ public class Client {
 			}
 		}
 		
+		Tray.init(args);
+		
 		// Set user
 		user = new User("testuser", "testpass");
+	}
+	
+	static String lockFileName = System.getProperty("user.home") + File.separator + "oneclipboard.lock";
+	
+	public static void lock() throws Exception {
+		JavaSysMon monitor =   new JavaSysMon();
+		int pid = monitor.currentPid();
+		
+		FileOutputStream fos = new FileOutputStream(lockFileName);
+		fos.write(String.valueOf(pid).getBytes());
+	}
+	
+	public static void isRunning(){
+		File lockFile = new File(lockFileName);
+		if(lockFile.exists()){
+			
+		}
+	}
+	
+	private static int getPID(File lockFile){
+		int pid = -1;
+		// Read PID
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(lockFile));
+			pid = Integer.parseInt(reader.readLine().trim());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			try {
+				reader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return pid;
 	}
 
 	private static void pipeSysoutToFile() {

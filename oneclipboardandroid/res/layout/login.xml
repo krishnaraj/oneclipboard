@@ -63,13 +63,13 @@
             <!-- Email Label -->
 
             <TextView
-                android:id="@+id/usernameField"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/username"
                 android:textColor="#372c24" />
 
             <EditText
+                android:id="@+id/usernameField"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dip"

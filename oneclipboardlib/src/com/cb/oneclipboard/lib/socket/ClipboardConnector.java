@@ -53,6 +53,7 @@ public class ClipboardConnector {
 					if (reconnectCounter <= MAX_RECONNECT_ATTEMPTS) {
 						connect(server, port, user, messageListener);
 					}
+					System.err.println(String.format("Unable to connect, tried %d time(s)", reconnectCounter));
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {

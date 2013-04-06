@@ -54,7 +54,8 @@ public class Server {
 		// Start admin server
 		try {
 			AdminServer.start(args);
-		} catch (IOException e) {
+			ServerThreadCleaner.start(args);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

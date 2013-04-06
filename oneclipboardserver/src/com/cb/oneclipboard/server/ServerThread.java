@@ -27,7 +27,8 @@ public class ServerThread extends Thread {
 		try {
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
-				System.out.println(String.format("Received '%s' from %s at %s", message.getText(), message.getUser().getUserName(), getHostAddress()));
+				System.out.println(String.format("Received '%s' from %s at %s", message.getText(), message.getUser().getUserName(),
+						getHostAddress()));
 
 				if (message.getMessageType() == MessageType.REGISTER) {
 					user = message.getUser();
@@ -37,13 +38,14 @@ public class ServerThread extends Thread {
 							System.out.println(String.format("Sending '%s' to %s at %s", message.getText(),
 									serverThread.user.getUserName(), serverThread.getHostAddress()));
 							try {
-								serverThread.objOutputStream.writeObject(message);
-								serverThread.objOutputStream.flush();
-							} catch (Exception ex) {
-								ex.printStackTrace();
+								serverThread.send(message);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
 					}
+				} else if (message.getMessageType() == MessageType.PING) {
+					// Ping received from client
 				}
 			}
 
@@ -53,7 +55,26 @@ public class ServerThread extends Thread {
 		}
 	}
 
+	public void ping() throws Exception {
+		send(new Message("ping", MessageType.PING, user));
+	}
+
+	protected synchronized void send(Message message) throws Exception {
+		objOutputStream.writeObject(message);
+		objOutputStream.flush();
+	}
+
 	public String getHostAddress() {
 		return socket.getInetAddress().getHostAddress();
+	}
+
+	public void close() {
+		try {
+			objInputStream.close();
+			objOutputStream.close();
+			socket.close();
+		} catch (Exception e) {
+			System.err.println("Connection already closed for " + user.getUserName() + "@" + getHostAddress());
+		}
 	}
 }

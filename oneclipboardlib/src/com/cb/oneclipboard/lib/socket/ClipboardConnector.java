@@ -49,11 +49,12 @@ public class ClipboardConnector {
 				} catch (IOException e) {
 					// try reconnecting
 					reconnectCounter++;
-					System.err.println("Connection lost! reconnect attempt " + reconnectCounter);
 					if (reconnectCounter <= MAX_RECONNECT_ATTEMPTS) {
 						connect(server, port, user, messageListener);
+						return;
 					}
-					System.err.println(String.format("Unable to connect, tried %d time(s)", reconnectCounter));
+					System.err.println("Unable to connect.");
+					e.printStackTrace();
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {

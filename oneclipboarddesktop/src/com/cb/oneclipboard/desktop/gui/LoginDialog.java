@@ -38,7 +38,6 @@ public class LoginDialog extends JDialog {
 		getContentPane().setBackground(Color.BLACK);
 		setBackground(Color.BLACK);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		getContentPane().setSize(new Dimension(400, 300));
 		getContentPane().setLayout(null);
 
 		JLabel lblEnterAnyUsernamepassword = new JLabel(
@@ -82,8 +81,10 @@ public class LoginDialog extends JDialog {
 		});
 		btnLogin.setBounds(12, 119, 117, 25);
 		getContentPane().add(btnLogin);
-		setSize(new Dimension(399, 156));
 		setResizable(false);
-		setPreferredSize(new Dimension(100, 100));
+		setPreferredSize(new Dimension(399, 175));
+		setSize(200,200);
+		setLocationRelativeTo(null);
+		pack();
 	}
 }

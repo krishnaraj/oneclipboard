@@ -54,7 +54,7 @@ public class LoginDialog extends JDialog {
 		getContentPane().add(lblUsername);
 
 		textField = new JTextField();
-		textField.setBounds(104, 60, 114, 19);
+		textField.setBounds(104, 60, 114, 25);
 		getContentPane().add(textField);
 		textField.setColumns(10);
 
@@ -65,7 +65,7 @@ public class LoginDialog extends JDialog {
 
 		passwordField = new JPasswordField();
 		passwordField.setColumns(10);
-		passwordField.setBounds(104, 89, 114, 19);
+		passwordField.setBounds(104, 89, 114, 25);
 		getContentPane().add(passwordField);
 
 		JButton btnLogin = new JButton("Login");
@@ -80,7 +80,7 @@ public class LoginDialog extends JDialog {
 				Client.propertyChangeSupport.firePropertyChange(Property.LOGIN, null, new User(userName, password));
 			}
 		});
-		btnLogin.setBounds(12, 116, 117, 25);
+		btnLogin.setBounds(12, 119, 117, 25);
 		getContentPane().add(btnLogin);
 		setSize(new Dimension(399, 156));
 		setResizable(false);

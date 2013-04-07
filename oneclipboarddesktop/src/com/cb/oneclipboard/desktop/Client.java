@@ -33,9 +33,9 @@ public class Client implements PropertyChangeListener {
 	private static ApplicationUI ui = new ApplicationUI();
 	private static String serverAddress = null;
 	private static int serverPort;
-	private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private static ScheduledExecutorService scheduler = null;
 	private static User user = null;
-	public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport(); 
+	public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport();
 
 	public static final String[] PROP_LIST = { "config.properties" };
 
@@ -45,7 +45,7 @@ public class Client implements PropertyChangeListener {
 	}
 
 	public void init(String args[]) {
-		pipeSysoutToFile();
+		//pipeSysoutToFile();
 
 		try {
 			lock();
@@ -64,9 +64,9 @@ public class Client implements PropertyChangeListener {
 			} catch (Exception e) {
 			}
 		}
-		
+
 		propertyChangeSupport.addPropertyChangeListener(this);
-		
+
 		ui.showLogin();
 	}
 
@@ -81,11 +81,18 @@ public class Client implements PropertyChangeListener {
 			client.start();
 			ui.createAndShowTray();
 			break;
+		case START:
+			client.start();
+			break;
+		case STOP:
+			client.stop();
+			break;
 		}
 	}
 
 	public void start() {
 		final TextTransfer textTransfer = new TextTransfer();
+		scheduler = Executors.newScheduledThreadPool(1);
 
 		// Poll the clipboard for changes
 		final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
@@ -116,6 +123,11 @@ public class Client implements PropertyChangeListener {
 		// Run the poll task every 2 seconds
 		final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
 
+	}
+
+	public void stop() {
+		scheduler.shutdownNow();
+		ClipboardConnector.close();
 	}
 
 	static String lockFileName = System.getProperty("user.home") + File.separator + "oneclipboard.lock";

@@ -2,7 +2,9 @@ package com.cb.oneclipboard.desktop;
 
 public class ApplicationConstants {
 	public enum Property {
-		LOGIN, 
+		LOGIN,
+		STOP,
+		START,
 		;
 	}
 }

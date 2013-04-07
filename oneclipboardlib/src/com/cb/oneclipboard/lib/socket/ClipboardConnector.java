@@ -1,9 +1,9 @@
 package com.cb.oneclipboard.lib.socket;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import com.cb.oneclipboard.lib.Message;
 import com.cb.oneclipboard.lib.MessageType;
@@ -34,37 +34,36 @@ public class ClipboardConnector {
 					objOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 					objOutputStream.flush();
 					objInputStream = new ObjectInputStream(clientSocket.getInputStream());
-					System.out.println("connected to " + server + ":" + port);
-
-					// resert counter
-					reconnectCounter = 0;
-
-					messageListener.onConnect();
-
-					while (listening) {
-						Message message = (Message) objInputStream.readObject();
-						processMessage(message, messageListener);
-					}
-
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// try reconnecting
 					reconnectCounter++;
 					if (reconnectCounter <= MAX_RECONNECT_ATTEMPTS) {
+						System.out.println("Reconnect attempt " + reconnectCounter);
 						connect(server, port, user, messageListener);
 						return;
 					}
 					System.err.println("Unable to connect.");
 					e.printStackTrace();
+				}
+				System.out.println("connected to " + server + ":" + port);
+
+				// resert counter
+				reconnectCounter = 0;
+
+				messageListener.onConnect();
+
+				try {
+					while (listening) {
+						Message message = (Message) objInputStream.readObject();
+						processMessage(message, messageListener);
+					}
+
+				} catch (SocketException e) {
+					System.err.println(e.getMessage());
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
-					try {
-						objInputStream.close();
-						objOutputStream.close();
-						clientSocket.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					close();
 				}
 			}
 
@@ -92,6 +91,16 @@ public class ClipboardConnector {
 				objOutputStream.writeObject(message);
 				objOutputStream.flush();
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void close() {
+		try {
+			objInputStream.close();
+			objOutputStream.close();
+			clientSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

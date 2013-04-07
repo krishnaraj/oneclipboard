@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.Client;
+import com.cb.oneclipboard.lib.ApplicationProperties;
 
 public class Tray {
 	public static void main(String[] args) {
@@ -110,7 +111,8 @@ public class Tray {
 	}
 
 	public static void showAboutDialog() {
-		JOptionPane.showMessageDialog(null, "OneClipboard v1.0", "About", JOptionPane.PLAIN_MESSAGE);
+		String text = ApplicationProperties.getStringProperty("app_name") + " " + ApplicationProperties.getStringProperty("version");
+		JOptionPane.showMessageDialog(null, text, "About", JOptionPane.PLAIN_MESSAGE);
 	}
 
 	// Obtain the image URL

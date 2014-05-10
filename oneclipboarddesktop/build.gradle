@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.7
+version = '1.0'
+
+dependencies {
+    compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
+    compile project(':oneclipboardlib')
+}
+
+sourceSets.main.java.srcDirs = ['src']

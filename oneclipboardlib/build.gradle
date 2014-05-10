@@ -1,0 +1,11 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.7
+version = '1.0'
+
+sourceSets.main.java.srcDirs = ['src']

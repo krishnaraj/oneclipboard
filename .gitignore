@@ -5,3 +5,6 @@
 **/.project
 **/project.properties
 **/*.log
+**/build
+.gradle
+local.properties

@@ -24,3 +24,11 @@ gradle :oneclipboardandroid:eclipse
 gradle :oneclipboarddesktop:eclipse
 gradle :oneclipboardserver:eclipse
 ```
+
+###Usage
+1. Run oneclipboardserver ( on your desktop )
+2. Run oneclipboarddesktop ( on desktop of course :) )
+3. Run oneclipboardandroid ( on your android device )
+4. Copy some text on your desktop/android, paste it on your android/desktop.
+
+Note: You can use any username/password combination but make sure its the same on all the devices.

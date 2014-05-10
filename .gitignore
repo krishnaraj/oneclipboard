@@ -3,7 +3,6 @@
 **/.settings
 **/.classpath
 **/.project
-**/project.properties
 **/*.log
 **/build
 .gradle

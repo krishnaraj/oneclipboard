@@ -1,5 +1,3 @@
-apply plugin: 'eclipse'
-
 buildscript {
     repositories {
         mavenCentral()
@@ -43,6 +41,12 @@ android {
   }
 }
 
+apply plugin: 'eclipse'
+
+eclipse.ext {
+	genDir = new File("${projectDir}/gen")
+}
+
 // http://blog.gouline.net/2013/11/02/new-build-system-for-android-with-eclipse/
 
 eclipse.classpath.plusConfigurations += configurations.compile
@@ -54,9 +58,9 @@ eclipse.classpath.file {
         }
     }
 
-    new File("gen/").mkdirs()
- 
     withXml {
+		eclipse.genDir.mkdir()
+		
         def node = it.asNode()
  
         node.appendNode('classpathentry kind="src" path="src"')

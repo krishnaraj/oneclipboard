@@ -42,3 +42,40 @@ android {
       abortOnError false
   }
 }
+
+// http://blog.gouline.net/2013/11/02/new-build-system-for-android-with-eclipse/
+
+eclipse.classpath.plusConfigurations += configurations.compile
+ 
+eclipse.classpath.file {
+    beforeMerged { classpath ->
+        classpath.entries.removeAll() { c -> 
+            c.kind == 'src'
+        }
+    }
+
+    new File("gen/").mkdirs()
+ 
+    withXml {
+        def node = it.asNode()
+ 
+        node.appendNode('classpathentry kind="src" path="src"')
+        node.appendNode('classpathentry kind="src" path="gen"')
+ 
+        node.children().removeAll() { c ->
+            def path = c.attribute('path')
+            path != null && (
+                    path.contains('/com.android.support/support-v4')
+                    )
+        }
+    }
+}
+ 
+eclipse.project {
+    name = 'oneclipboardandroid'
+ 
+    natures 'com.android.ide.eclipse.adt.AndroidNature'
+    buildCommand 'com.android.ide.eclipse.adt.ResourceManagerBuilder'
+    buildCommand 'com.android.ide.eclipse.adt.PreCompilerBuilder'
+    buildCommand 'com.android.ide.eclipse.adt.ApkBuilder'
+}

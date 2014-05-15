@@ -26,9 +26,9 @@ gradle :oneclipboardserver:eclipse
 ```
 
 ###Usage
-1. Run oneclipboardserver ( on your desktop )
-2. Run oneclipboarddesktop ( on desktop of course :) )
-3. Run oneclipboardandroid ( on your android device )
+1. Run oneclipboardserver - gradle :oneclipboardserver:run
+2. Run oneclipboarddesktop - gradle :oneclipboarddesktop:run
+3. Install oneclipboardandroid/build/apk/oneclipboardandroid-debug-unaligned.apk on your Android device.
 4. Copy some text on your desktop/android, paste it on your android/desktop.
 
 Note: You can use any username/password combination but make sure its the same on all the devices.

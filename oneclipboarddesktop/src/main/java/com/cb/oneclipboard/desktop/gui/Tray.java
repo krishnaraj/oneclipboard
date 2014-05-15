@@ -53,8 +53,8 @@ public class Tray {
 			return;
 		}
 		final PopupMenu popup = new PopupMenu();
-		final Image iconBlue = createImage("/logo.png", "tray icon");
-		final Image iconRed = createImage("/logo-red.png", "tray icon");
+		final Image iconBlue = createImage("/images/logo.png", "tray icon");
+		final Image iconRed = createImage("/images/logo-red.png", "tray icon");
 		final TrayIcon trayIcon = new TrayIcon(iconBlue);
 		final SystemTray tray = SystemTray.getSystemTray();
 

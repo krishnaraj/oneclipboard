@@ -14,6 +14,7 @@ dependencies {
     compile project(':oneclipboardlib')
 }
 
-sourceSets.main.java.srcDirs = ['src']
+sourceSets.main.java.srcDirs = ['src/main/java']
+sourceSets.main.resources.srcDirs = ['src/main/resources']
 
 mainClassName = "com.cb.oneclipboard.desktop.Client"

@@ -122,6 +122,12 @@ public class Client implements PropertyChangeListener {
 				ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
 			}
 
+			@Override
+			public void onDisconnect() {
+				// TODO Auto-generated method stub
+				
+			}
+
 		});
 
 		// Run the poll task every 2 seconds

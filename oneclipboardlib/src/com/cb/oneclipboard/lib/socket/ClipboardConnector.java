@@ -46,6 +46,7 @@ public class ClipboardConnector {
 						return;
 					}
 					LOGGER.log(Level.SEVERE, "Unable to connect", e);
+					messageListener.onDisconnect();
 				}
 				LOGGER.info("connected to " + server + ":" + port);
 
@@ -68,6 +69,9 @@ public class ClipboardConnector {
 					LOGGER.log(Level.SEVERE, "Exception when listening for message", e);
 				} finally {
 					close();
+					if( !isConnected() ) {
+						messageListener.onDisconnect();
+					}
 				}
 			}
 
@@ -108,5 +112,13 @@ public class ClipboardConnector {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Exception when closing resources", e);
 		}
+	}
+	
+	public static boolean isConnected() {
+		return clientSocket != null ? clientSocket.isConnected() : false;
+	}
+	
+	public static String getServerName() {
+		return clientSocket != null ? clientSocket.getInetAddress().getHostName() : "";
 	}
 }

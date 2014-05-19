@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 				}
 
 			} );
+			( (ClipboardApplication) getApplicationContext() ).loadPropties();
 		} else {
 			startActivity( IntentUtil.getHomePageIntent( this ) );
 			finish();

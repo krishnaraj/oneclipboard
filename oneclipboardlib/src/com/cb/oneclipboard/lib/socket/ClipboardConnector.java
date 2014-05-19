@@ -95,7 +95,7 @@ public class ClipboardConnector {
 
 	public static void send(Message message) {
 		try {
-			if (objOutputStream != null) {
+			if ( isConnected() && objOutputStream != null ) {
 				objOutputStream.writeObject(message);
 				objOutputStream.flush();
 			}

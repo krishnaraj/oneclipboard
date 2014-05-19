@@ -21,6 +21,8 @@ public class ClipboardConnector {
 
 	private static final int MAX_RECONNECT_ATTEMPTS = 3;
 	private static int reconnectCounter = 0;
+	
+	private static volatile boolean connected = false;
 
 	public static void connect(final String server, final int port, final User user, final SocketListener messageListener) {
 		final boolean listening = true;
@@ -46,9 +48,11 @@ public class ClipboardConnector {
 						return;
 					}
 					LOGGER.log(Level.SEVERE, "Unable to connect", e);
-					messageListener.onDisconnect();
+					connected = false;
+					return;
 				}
 				LOGGER.info("connected to " + server + ":" + port);
+				connected = true;
 
 				// resert counter
 				reconnectCounter = 0;
@@ -69,9 +73,8 @@ public class ClipboardConnector {
 					LOGGER.log(Level.SEVERE, "Exception when listening for message", e);
 				} finally {
 					close();
-					if( !isConnected() ) {
-						messageListener.onDisconnect();
-					}
+					connected = false;
+					messageListener.onDisconnect();
 				}
 			}
 
@@ -115,10 +118,15 @@ public class ClipboardConnector {
 	}
 	
 	public static boolean isConnected() {
-		return clientSocket != null ? clientSocket.isConnected() : false;
+		return connected;
 	}
 	
 	public static String getServerName() {
-		return clientSocket != null ? clientSocket.getInetAddress().getHostName() : "";
+		try{
+			return clientSocket.getInetAddress().getHostName();
+		} catch( Exception e ) {
+			LOGGER.log(Level.FINE, "Exception when getting host name", e);
+		}
+		return "";
 	}
 }

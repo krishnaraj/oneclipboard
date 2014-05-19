@@ -1,5 +1,7 @@
 package com.cb.oneclipboard;
 
+import com.cb.oneclipboard.lib.socket.ClipboardConnector;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +17,7 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
 		ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
 		
-		if ( activeNetInfo != null && activeNetInfo.isConnected() ) {
+		if ( activeNetInfo != null && activeNetInfo.isConnected() && !ClipboardConnector.isConnected() ) {
 			Log.d(TAG, "Connected to network.");
 			( (ClipboardApplication) context.getApplicationContext() ).establishConnection();
 		} else {

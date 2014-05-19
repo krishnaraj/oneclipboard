@@ -14,13 +14,13 @@ public class OneClipboardService extends Service {
 	@Override
 	public int onStartCommand( Intent intent, int flags, int startId ) {
 		Log.d( TAG, "onStartCommand called" );
-		start();
 		
 		NotificationCompat.Builder notificationBuilder = ( (ClipboardApplication) getApplicationContext() ).getNotificationBuilder(this);
-		
 		startForeground( ClipboardApplication.NOTIFICATION_ID, notificationBuilder.build() );
 		
 		isRunning = true;
+		
+		start();
 		
 		return Service.START_STICKY;
 	}
@@ -44,6 +44,7 @@ public class OneClipboardService extends Service {
 	}
 
 	public void start() {
+		( (ClipboardApplication) getApplicationContext() ).initializeClipboardListener();
 		( (ClipboardApplication) getApplicationContext() ).establishConnection();
 	}
 }

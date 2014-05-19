@@ -28,6 +28,8 @@ public class ClipboardApplication extends Application {
 	private static final String TAG = ClipboardApplication.class.getName();
 
 	private static final String[] PROP_LIST = { "app.properties" };
+	private ClipboardListener clipboardListener = null;
+	private ClipboardManager clipBoard = null;
 
 	private User user = null;
 	private NotificationCompat.Builder notificationBuilder = null;
@@ -48,10 +50,10 @@ public class ClipboardApplication extends Application {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
-	public void establishConnection() {
-		final ClipboardManager clipBoard = (ClipboardManager) getSystemService( CLIPBOARD_SERVICE );
-		final ClipboardListener clipboardListener = new ClipboardListener( clipBoard, new Callback() {
+	
+	public void initializeClipboardListener() {
+		clipBoard = (ClipboardManager) getSystemService( CLIPBOARD_SERVICE );
+		clipboardListener = new ClipboardListener( clipBoard, new Callback() {
 
 			@Override
 			public void execute( Object object ) {
@@ -60,6 +62,10 @@ public class ClipboardApplication extends Application {
 			}
 		} );
 		clipBoard.addPrimaryClipChangedListener( clipboardListener );
+	}
+
+	public void establishConnection() {
+		Log.d(TAG, "Establishing connection to server...");
 		
 		// Listen for clipboard content from other clients
 		ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
@@ -90,7 +96,6 @@ public class ClipboardApplication extends Application {
 
 		notificationBuilder = new NotificationCompat.Builder( context )
 			.setContentTitle( "Oneclipboard" )
-			.setContentText( Utility.getConnectionStatus() )
 			.setSmallIcon( R.drawable.logo )
 			.setContentIntent( pendingIntent )
 			.setAutoCancel( true );
@@ -99,6 +104,7 @@ public class ClipboardApplication extends Application {
 	}
 	
 	public void updateNotification() {
+		Log.d( TAG, "notificationBuilder: " + notificationBuilder );
 		if( notificationBuilder != null ) {
 			notificationBuilder.setContentText( Utility.getConnectionStatus() );
 			NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

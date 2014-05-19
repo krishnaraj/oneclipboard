@@ -2,6 +2,7 @@ package com.cb.oneclipboard.lib.socket;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
@@ -31,7 +32,9 @@ public class ClipboardConnector {
 			@Override
 			public void run() {
 				try {
-					clientSocket = new Socket(server, port);
+					LOGGER.info("Connecting to " + server + "...");
+					clientSocket = new Socket();
+					clientSocket.connect( new InetSocketAddress( server, port ), 5000 );
 					/*
 					 * The objOutputStream needs to be created and flushed
 					 * before the objInputStream can be created

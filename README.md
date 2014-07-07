@@ -25,6 +25,14 @@ gradle :oneclipboarddesktop:eclipse
 gradle :oneclipboardserver:eclipse
 ```
 
+####Creating Fat Jar
+A single runnable jar can be created for the desktop and server with the following commands:
+```shell
+gradle :oneclipboarddesktop:shadowJar
+gradle :oneclipboardserver:shadowJar
+```
+This should create a *-all.jar under build/libs.
+
 ###Usage
 1. Run oneclipboardserver - gradle :oneclipboardserver:run
 2. Run oneclipboarddesktop - gradle :oneclipboarddesktop:run

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cb.oneclipboard"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="beta-1.0" >
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -41,14 +41,14 @@
             android:permission="android.permission.INTERNET"
             android:stopWithTask="false" >
         </service>
-        
+
         <receiver android:name="com.cb.oneclipboard.ConnectionChangeReceiver"
           android:label="NetworkConnection">
 		  <intent-filter>
 		    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
 		  </intent-filter>
 		</receiver>
-		
+
     </application>
 
 </manifest>

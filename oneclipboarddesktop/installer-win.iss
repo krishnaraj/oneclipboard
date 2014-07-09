@@ -4,7 +4,7 @@
 #define MyAppName "OneClipboard"
 #define MyAppVersion "1.0.1(beta)"
 #define MyAppPublisher "Krishnaraj"
-#define MyAppURL "http://www.crushingboredom.com"
+#define MyAppURL "https://github.com/krishnaraj/oneclipboard"
 #define MyAppExeName "OneClipboardDesktop.jar"
 
 [Setup]
@@ -42,4 +42,3 @@ Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
-

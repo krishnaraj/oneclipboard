@@ -2,10 +2,10 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "OneClipboard"
-#define MyAppVersion "1.0.1(beta)"
+#define MyAppVersion "beta-1.0"
 #define MyAppPublisher "Krishnaraj"
 #define MyAppURL "https://github.com/krishnaraj/oneclipboard"
-#define MyAppExeName "OneClipboardDesktop.jar"
+#define MyAppExeName "oneclipboarddesktop-1.0-all.jar"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,7 +21,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputBaseFilename=OneClipboard-Setup
+OutputBaseFilename={#MyAppName}-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 
@@ -32,7 +32,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-Source: "Output\OneClipboardDesktop.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libs\oneclipboarddesktop-1.0-all.jar"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

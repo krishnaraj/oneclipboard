@@ -56,6 +56,7 @@ public class ServerThread extends Thread {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, e.getMessage());
 			Registery.getClientSockets().remove(this);
+			close();
 		}
 	}
 

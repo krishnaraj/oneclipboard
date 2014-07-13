@@ -34,9 +34,19 @@ public class Server {
 		}
 
 		while (listening) {
-			ServerThread serverThread = new ServerThread(serverSocket.accept());
-			Registery.register(serverThread);
-			serverThread.start();
+			ServerThread serverThread = null;
+			try {
+				serverThread = new ServerThread(serverSocket.accept());
+				Registery.register(serverThread);
+				serverThread.start();
+			} catch (Exception e) {
+				try{
+					serverThread.close();
+				}catch(Exception ex){
+					LOGGER.log(Level.WARNING, "Unable to close server thread properly " + ex.getMessage());
+				}
+				LOGGER.log(Level.WARNING, "Connection lost: " + e.getMessage());
+			}
 		}
 
 	}

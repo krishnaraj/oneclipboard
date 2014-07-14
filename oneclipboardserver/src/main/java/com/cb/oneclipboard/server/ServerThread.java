@@ -21,9 +21,14 @@ public class ServerThread extends Thread {
 	public ServerThread(Socket socket) throws Exception {
 		super("ServerThread");
 		this.socket = socket;
-		objInputStream = new ObjectInputStream(socket.getInputStream());
-		objOutputStream = new ObjectOutputStream(socket.getOutputStream());
-		objOutputStream.flush();
+		try {
+			objInputStream = new ObjectInputStream(socket.getInputStream());
+			objOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			objOutputStream.flush();
+		} catch (Exception e) {
+			LOGGER.log(Level.WARNING, e.getMessage());
+			close();
+		}
 	}
 
 	@Override
@@ -54,7 +59,7 @@ public class ServerThread extends Thread {
 			}
 
 		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage());
+			LOGGER.log(Level.SEVERE, "Error reading stream", e);
 			Registery.getClientSockets().remove(this);
 			close();
 		}

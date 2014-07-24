@@ -2,6 +2,7 @@ package com.cb.oneclipboard.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,8 +51,8 @@ public class Server {
 
 	private static void init(String[] args) throws SecurityException, IOException {
 		// set up loggers
-		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.log", Level.INFO));
-		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.err", Level.SEVERE));
+		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.log", Arrays.asList(Level.INFO, Level.WARNING)));
+		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.err", Arrays.asList(Level.SEVERE)));
 
 		// Load properties
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());

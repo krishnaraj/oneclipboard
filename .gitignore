@@ -4,6 +4,7 @@
 **/.classpath
 **/.project
 **/*.log
+**/*.err
 **/build
 .gradle
 local.properties

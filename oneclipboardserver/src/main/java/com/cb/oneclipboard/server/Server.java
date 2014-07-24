@@ -2,19 +2,16 @@ package com.cb.oneclipboard.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
 import com.cb.oneclipboard.lib.DefaultPropertyLoader;
 import com.cb.oneclipboard.server.admin.AdminServer;
+import com.cb.oneclipboard.server.logging.LevelBasedFileHandler;
 
 public class Server {
 	private final static Logger LOGGER = Logger.getLogger(Server.class.getName());
-	static private FileHandler fileTxt;
-	static private SimpleFormatter formatterTxt;
 
 	public static final String[] PROP_LIST = { "config.properties" };
 	private static int serverPort;
@@ -40,9 +37,9 @@ public class Server {
 				Registery.register(serverThread);
 				serverThread.start();
 			} catch (Exception e) {
-				try{
+				try {
 					serverThread.close();
-				}catch(Exception ex){
+				} catch (Exception ex) {
 					LOGGER.log(Level.WARNING, "Unable to close server thread properly " + ex.getMessage());
 				}
 				LOGGER.log(Level.WARNING, "Connection lost: " + e.getMessage());
@@ -53,11 +50,8 @@ public class Server {
 
 	private static void init(String[] args) throws SecurityException, IOException {
 		// set up loggers
-		formatterTxt = new SimpleFormatter();
-		fileTxt = new FileHandler("oneclipboardserver.log", 25 * 1024 * 1024 * 1024, // 25MB
-				1, true);
-		fileTxt.setFormatter(formatterTxt);
-		Logger.getLogger("").addHandler(fileTxt);
+		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.log", Level.INFO));
+		Logger.getLogger("").addHandler(new LevelBasedFileHandler("oneclipboardserver.err", Level.SEVERE));
 
 		// Load properties
 		ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());

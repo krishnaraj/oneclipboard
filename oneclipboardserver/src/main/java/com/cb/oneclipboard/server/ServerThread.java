@@ -60,7 +60,6 @@ public class ServerThread extends Thread {
 
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error reading stream", e);
-			Registery.getClientSockets().remove(this);
 			close();
 		}
 	}
@@ -80,6 +79,7 @@ public class ServerThread extends Thread {
 
 	public void close() {
 		try {
+			Registery.getClientSockets().remove(this);
 			objInputStream.close();
 			objOutputStream.close();
 			socket.close();

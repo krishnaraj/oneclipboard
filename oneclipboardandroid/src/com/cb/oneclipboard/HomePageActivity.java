@@ -21,8 +21,8 @@ public class HomePageActivity extends Activity {
 	protected void onStart() {
 		final ClipboardManager clipBoard = (ClipboardManager) getSystemService( CLIPBOARD_SERVICE );
 		TextView clipboardTextView = (TextView)findViewById( R.id.homePageText );
-		clipboardTextView.setMovementMethod(new ScrollingMovementMethod());
 		clipboardTextView.setText( clipBoard.getText() );
+		
 		super.onStart();
 	}
 

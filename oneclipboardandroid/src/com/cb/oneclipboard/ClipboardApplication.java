@@ -8,7 +8,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.cb.oneclipboard.lib.ApplicationProperties;
@@ -26,6 +28,7 @@ public class ClipboardApplication extends Application {
 	public static final int NOTIFICATION_ID = 1;
 
 	private static final String TAG = ClipboardApplication.class.getName();
+	public static final String CLIPBOARD_UPDATED = "clipboard_updated";
 
 	private static final String[] PROP_LIST = { "app.properties" };
 	private ClipboardListener clipboardListener = null;
@@ -33,9 +36,16 @@ public class ClipboardApplication extends Application {
 
 	private User user = null;
 	private NotificationCompat.Builder notificationBuilder = null;
+	private LocalBroadcastManager broadcaster = null;
 
 	private static String serverAddress = null;
 	private static int serverPort;
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		broadcaster = LocalBroadcastManager.getInstance(this);
+	}
 
 	public void loadPropties() {
 		loadPropties(PROP_LIST);
@@ -74,6 +84,11 @@ public class ClipboardApplication extends Application {
 			public void onMessageReceived(Message message) {
 				clipboardListener.updateClipboardContent(message.getText());
 				clipBoard.setText(message.getText());
+				
+				// broadcast the message so that activities can update
+				Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
+				intent.putExtra("message", message.getText());
+				broadcaster.sendBroadcast(intent);
 			}
 
 			@Override

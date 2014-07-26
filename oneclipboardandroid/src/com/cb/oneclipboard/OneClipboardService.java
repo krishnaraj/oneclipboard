@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class OneClipboardService extends Service {

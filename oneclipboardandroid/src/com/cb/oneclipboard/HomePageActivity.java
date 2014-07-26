@@ -2,8 +2,8 @@ package com.cb.oneclipboard;
 
 import android.app.Activity;
 import android.content.ClipboardManager;
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.widget.TextView;
 
@@ -20,7 +20,8 @@ public class HomePageActivity extends Activity {
 	@Override
 	protected void onStart() {
 		final ClipboardManager clipBoard = (ClipboardManager) getSystemService( CLIPBOARD_SERVICE );
-		TextView clipboardTextView = (TextView)findViewById( R.id.homePageTextView );
+		TextView clipboardTextView = (TextView)findViewById( R.id.homePageText );
+		clipboardTextView.setMovementMethod(new ScrollingMovementMethod());
 		clipboardTextView.setText( clipBoard.getText() );
 		super.onStart();
 	}

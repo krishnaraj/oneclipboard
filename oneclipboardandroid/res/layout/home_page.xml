@@ -5,13 +5,26 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/homePageTextView"
+        android:id="@+id/homePageText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="198dp"
-        android:text="@string/home_page_message"
+        android:layout_marginTop="58dp"
+        android:maxLines="100"
+        android:scrollbars="vertical"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/homeTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/homePageText"
+        android:text="@string/home_page_message"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="20dp"
+        android:ems="10" >
+
+    </TextView>
 
 </RelativeLayout>

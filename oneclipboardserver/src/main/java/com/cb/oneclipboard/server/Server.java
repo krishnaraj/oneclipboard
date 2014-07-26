@@ -35,8 +35,6 @@ public class Server {
 			ServerThread serverThread = null;
 			try {
 				serverThread = new ServerThread(serverSocket.accept());
-				Registery.register(serverThread);
-				serverThread.start();
 			} catch (Exception e) {
 				try {
 					serverThread.close();

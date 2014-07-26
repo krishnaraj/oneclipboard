@@ -22,9 +22,13 @@ public class ServerThread extends Thread {
 		super("ServerThread");
 		this.socket = socket;
 		try {
+			LOGGER.info("Accepting connection from " + getHostAddress());
 			objInputStream = new ObjectInputStream(socket.getInputStream());
 			objOutputStream = new ObjectOutputStream(socket.getOutputStream());
 			objOutputStream.flush();
+			
+			Registery.register(this);
+			start();
 		} catch (Exception e) {
 			LOGGER.log(Level.WARNING, e.getMessage());
 			close();

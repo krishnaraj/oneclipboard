@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.Menu;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 public class HomePageActivity extends Activity {
@@ -29,7 +30,11 @@ public class HomePageActivity extends Activity {
 				String clipboardText = intent.getStringExtra("message");
 				TextView clipboardTextView = (TextView) findViewById(R.id.homePageText);
 				clipboardTextView.setText(clipboardText);
-
+				
+				// Explicitly setting height as otherwise the textView doesn't fill screen height for long text.
+				LayoutParams params = clipboardTextView.getLayoutParams();
+				params.height = getResources().getDimensionPixelSize(R.dimen.text_view_height);
+				clipboardTextView.setLayoutParams(params);
 			}
 		};
 	}

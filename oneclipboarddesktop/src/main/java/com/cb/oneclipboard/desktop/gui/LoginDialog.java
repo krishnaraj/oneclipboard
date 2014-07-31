@@ -1,17 +1,23 @@
 package com.cb.oneclipboard.desktop.gui;
 
 import javax.swing.JDialog;
+
 import java.awt.GridLayout;
+
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+
 import javax.swing.JPanel;
+
 import java.awt.Component;
+
 import javax.swing.JPasswordField;
 
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
@@ -37,7 +43,9 @@ public class LoginDialog extends JDialog {
 	private JPasswordField passwordField;
 
 	public LoginDialog() {
+		super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
 		setModal(true);
+		setIconImage(UIUtility.createImage("/images/logo.png", "OneClipboard"));
 		setTitle(Utilities.getFullApplicationName());
 		getContentPane().setBackground(Color.BLACK);
 		setBackground(Color.BLACK);

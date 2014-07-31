@@ -53,8 +53,8 @@ public class Tray {
 			return;
 		}
 		final PopupMenu popup = new PopupMenu();
-		final Image iconBlue = createImage("/images/logo.png", "tray icon");
-		final Image iconRed = createImage("/images/logo-red.png", "tray icon");
+		final Image iconBlue = UIUtility.createImage("/images/logo.png", "OneClipboard online.");
+		final Image iconRed = UIUtility.createImage("/images/logo-red.png", "OneClipboard offline.");
 		final TrayIcon trayIcon = new TrayIcon(iconBlue);
 		final SystemTray tray = SystemTray.getSystemTray();
 
@@ -121,17 +121,5 @@ public class Tray {
 
 	public static void showAboutDialog() {
 		JOptionPane.showMessageDialog(null, Utilities.getFullApplicationName(), "About", JOptionPane.PLAIN_MESSAGE);
-	}
-
-	// Obtain the image URL
-	protected static Image createImage(String path, String description) {
-		URL imageURL = Tray.class.getResource(path);
-
-		if (imageURL == null) {
-			System.err.println("Resource not found: " + path);
-			return null;
-		} else {
-			return (new ImageIcon(imageURL, description)).getImage();
-		}
 	}
 }

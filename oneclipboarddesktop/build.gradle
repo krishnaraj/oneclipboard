@@ -1,8 +1,8 @@
+import org.apache.tools.ant.filters.*
+
 buildscript {
-  repositories { jcenter() }
-  dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.0.1'
-  }
+	repositories { jcenter() }
+	dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:1.0.1' }
 }
 
 apply plugin: 'java'
@@ -10,19 +10,24 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }
 
 sourceCompatibility = 1.7
 version = '1.0'
 
 dependencies {
-    compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
-    compile project(':oneclipboardlib')
+	compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
+	compile project(':oneclipboardlib')
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
 sourceSets.main.resources.srcDirs = ['src/main/resources']
 
 mainClassName = "com.cb.oneclipboard.desktop.Client"
+
+processResources {
+	def serverHostName = project.hasProperty("serverhost") ? project.property("serverhost") : "localhost"
+	filter ReplaceTokens, tokens: [
+		"serverhost": serverHostName
+	]
+}

@@ -1,6 +1,7 @@
 package com.cb.oneclipboard.server.admin;
 
 import com.cb.oneclipboard.server.Registery;
+import com.cb.oneclipboard.server.Server;
 import com.cb.oneclipboard.server.ServerThread;
 
 public class AdminCommandProcessor {
@@ -17,6 +18,10 @@ public class AdminCommandProcessor {
 			break;
 		case "client count":
 			output = String.valueOf(getClientCount());
+			break;
+		case "restart":
+			boolean success = Server.restart();
+			output = success ? "Restart completed successfully." : "Restart failed";
 			break;
 		case "exit":
 			output = "exit";

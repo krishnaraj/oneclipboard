@@ -2,6 +2,7 @@ package com.cb.oneclipboard.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,35 +17,57 @@ public class Server {
 
 	public static final String[] PROP_LIST = { "config.properties" };
 	private static int serverPort;
+	private static ServerSocket serverSocket = null;
 
 	public static void main(String[] args) throws Exception {
 		init(args);
-
-		ServerSocket serverSocket = null;
-		boolean listening = true;
-
-		try {
-			serverSocket = new ServerSocket(serverPort);
-			LOGGER.info("Server started on port " + serverPort);
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, "Could not listen on port: " + serverPort);
-			System.exit(-1);
-		}
-
-		while (listening) {
-			ServerThread serverThread = null;
-			try {
-				serverThread = new ServerThread(serverSocket.accept());
-			} catch (Exception e) {
+		start();
+	}
+	
+	public static void start(){
+		Thread startupThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
 				try {
-					serverThread.close();
-				} catch (Exception ex) {
-					LOGGER.log(Level.WARNING, "Unable to close server thread properly " + ex.getMessage());
+					serverSocket = new ServerSocket(serverPort);
+					LOGGER.info("Server started on port " + serverPort);
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, "Could not listen on port: " + serverPort);
+					System.exit(-1);
 				}
-				LOGGER.log(Level.WARNING, "Connection lost: " + e.getMessage());
-			}
-		}
 
+				while (true) {
+					ServerThread serverThread = null;
+					try {
+						serverThread = new ServerThread(serverSocket.accept());
+					}catch(SocketException e){
+						break; // exit loop
+					}catch (Exception e) {
+						try {
+							serverThread.close();
+						} catch (Exception ex) {
+							LOGGER.log(Level.WARNING, "Unable to close server thread properly " + ex.getMessage());
+						}
+						LOGGER.log(Level.WARNING, "Connection lost: " + e.getMessage());
+					}
+				}
+				
+			}
+		}, "Startup Thread");
+		startupThread.start();
+	}
+	
+	public static boolean restart(){
+		try{
+			LOGGER.info("Restarting server...");
+			serverSocket.close();
+			start();
+			return true;
+		}catch(Exception e){
+			LOGGER.log(Level.SEVERE, "Restart failed!", e);
+			return false;
+		}
 	}
 
 	private static void init(String[] args) throws SecurityException, IOException {

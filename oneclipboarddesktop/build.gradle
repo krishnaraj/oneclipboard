@@ -26,8 +26,9 @@ sourceSets.main.resources.srcDirs = ['src/main/resources']
 mainClassName = "com.cb.oneclipboard.desktop.Client"
 
 processResources {
-	def serverHostName = project.hasProperty("serverhost") ? project.property("serverhost") : "localhost"
-	filter ReplaceTokens, tokens: [
-		"serverhost": serverHostName
-	]
+	filesMatching('**/config.properties') {
+		filter {
+			it.replace('localhost', project.property('serverhost'))
+		}
+	}
 }

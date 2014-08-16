@@ -21,23 +21,19 @@ public class ServerThread extends Thread {
 	public ServerThread(Socket socket) throws Exception {
 		super("ServerThread");
 		this.socket = socket;
-		try {
-			LOGGER.info("Accepting connection from " + getHostAddress());
-			objInputStream = new ObjectInputStream(socket.getInputStream());
-			objOutputStream = new ObjectOutputStream(socket.getOutputStream());
-			objOutputStream.flush();
-			
-			Registery.register(this);
-			start();
-		} catch (Exception e) {
-			LOGGER.log(Level.WARNING, e.getMessage());
-			close();
-		}
+		LOGGER.info("Accepting connection from " + getHostAddress());
+		start();
 	}
 
 	@Override
 	public void run() {
 		try {
+			objInputStream = new ObjectInputStream(socket.getInputStream());
+			objOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			objOutputStream.flush();
+			
+			Registery.register(this);
+			
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
 				LOGGER.info(String.format("Received '%s' from %s at %s", message.getText(), message.getUser().getUserName(),

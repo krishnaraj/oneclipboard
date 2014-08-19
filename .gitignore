@@ -5,6 +5,7 @@
 **/.project
 **/*.log
 **/*.err
+**/*.lck
 **/build
 .gradle
 local.properties

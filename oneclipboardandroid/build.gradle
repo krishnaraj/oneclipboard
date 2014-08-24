@@ -41,6 +41,19 @@ android {
   }
 }
 
+android.applicationVariants.all { variant ->
+	def serverHostName = project.hasProperty("serverhost") ? project.property("serverhost") : "localhost"
+	variant.mergeAssets.doLast {
+		copy {
+			from("${projectDir}/assets") { include "*.properties" }
+			into("${buildDir}/assets/${variant.dirName}")
+			filter {
+				it.replace('localhost', serverHostName)
+			}
+		}
+	}
+}
+
 apply plugin: 'eclipse'
 
 eclipse.ext {

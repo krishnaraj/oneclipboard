@@ -21,20 +21,6 @@ android {
     buildToolsVersion '23.0.1'
     useLibrary  'org.apache.http.legacy'
 
-     sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        instrumentTest.setRoot('tests')
-    }
-
     defaultConfig {
         applicationId "com.cb.oneclipboard"
         minSdkVersion 16
@@ -57,54 +43,11 @@ android.applicationVariants.all { variant ->
 	def serverHostName = project.hasProperty("serverhost") ? project.property("serverhost") : "localhost"
 	variant.mergeAssets.doLast {
 		copy {
-			from("${projectDir}/assets") { include "*.properties" }
-			into("${buildDir}/assets/${variant.dirName}")
+			from("${projectDir}/main/assets") { include "*.properties" }
+			into("${buildDir}/main/assets/${variant.dirName}")
 			filter {
 				it.replace('localhost', serverHostName)
 			}
 		}
 	}
-}
-
-apply plugin: 'eclipse'
-
-eclipse.ext {
-	genDir = new File("${projectDir}/gen")
-}
-
-// http://blog.gouline.net/2013/11/02/new-build-system-for-android-with-eclipse/
-
-eclipse.classpath.plusConfigurations += configurations.compile
-
-eclipse.classpath.file {
-    beforeMerged { classpath ->
-        classpath.entries.removeAll() { c ->
-            c.kind == 'src'
-        }
-    }
-
-    withXml {
-		eclipse.genDir.mkdir()
-
-        def node = it.asNode()
-
-        node.appendNode('classpathentry kind="src" path="src"')
-        node.appendNode('classpathentry kind="src" path="gen"')
-
-        node.children().removeAll() { c ->
-            def path = c.attribute('path')
-            path != null && (
-                    path.contains('/com.android.support/support-v4')
-                    )
-        }
-    }
-}
-
-eclipse.project {
-    name = 'oneclipboardandroid'
-
-    natures 'com.android.ide.eclipse.adt.AndroidNature'
-    buildCommand 'com.android.ide.eclipse.adt.ResourceManagerBuilder'
-    buildCommand 'com.android.ide.eclipse.adt.PreCompilerBuilder'
-    buildCommand 'com.android.ide.eclipse.adt.ApkBuilder'
 }

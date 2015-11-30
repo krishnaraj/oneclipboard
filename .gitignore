@@ -10,3 +10,5 @@
 .gradle
 local.properties
 gradle.properties
+.idea
+*.iml

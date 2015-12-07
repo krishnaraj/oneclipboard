@@ -28,7 +28,7 @@ mainClassName = "com.cb.oneclipboard.desktop.Client"
 processResources {
 	filesMatching('**/config.properties') {
 		filter {
-			it.replace('localhost', project.property('serverhost'))
+			it.replace('localhost', rootProject.ext.serverHostName)
 		}
 	}
 }

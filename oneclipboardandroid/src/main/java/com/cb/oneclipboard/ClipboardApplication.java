@@ -49,8 +49,8 @@ public class ClipboardApplication extends Application {
 
 	public void loadPropties() {
 		loadPropties(PROP_LIST);
-		serverAddress = ApplicationProperties.getStringProperty("server");
-		serverPort = ApplicationProperties.getIntProperty("server_port");
+		serverAddress = getString(R.string.serverHostName);
+		serverPort = getResources().getInteger(R.integer.serverPort);
 	}
 
 	public User getUser() {

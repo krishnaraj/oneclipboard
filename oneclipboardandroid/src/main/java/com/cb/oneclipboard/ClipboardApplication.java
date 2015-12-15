@@ -13,135 +13,140 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.cb.oneclipboard.lib.ApplicationProperties;
-import com.cb.oneclipboard.lib.Callback;
-import com.cb.oneclipboard.lib.Message;
-import com.cb.oneclipboard.lib.MessageType;
-import com.cb.oneclipboard.lib.PropertyLoader;
-import com.cb.oneclipboard.lib.SocketListener;
-import com.cb.oneclipboard.lib.User;
+import com.cb.oneclipboard.lib.*;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.cb.oneclipboard.util.IntentUtil;
 import com.cb.oneclipboard.util.Utility;
 
 public class ClipboardApplication extends Application {
-	public static final int NOTIFICATION_ID = 1;
+    public static final int NOTIFICATION_ID = 1;
 
-	private static final String TAG = ClipboardApplication.class.getName();
-	public static final String CLIPBOARD_UPDATED = "clipboard_updated";
+    private static final String TAG = ClipboardApplication.class.getName();
+    public static final String CLIPBOARD_UPDATED = "clipboard_updated";
 
-	private static final String[] PROP_LIST = { "app.properties" };
-	private ClipboardListener clipboardListener = null;
-	private ClipboardManager clipBoard = null;
+    private static final String[] PROP_LIST = {"app.properties"};
+    private ClipboardListener clipboardListener = null;
+    private ClipboardManager clipBoard = null;
 
-	private User user = null;
-	private NotificationCompat.Builder notificationBuilder = null;
-	private LocalBroadcastManager broadcaster = null;
+    private CipherManager cipherManager = null;
 
-	private static String serverAddress = null;
-	private static int serverPort;
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		broadcaster = LocalBroadcastManager.getInstance(this);
-	}
+    private User user = null;
+    private NotificationCompat.Builder notificationBuilder = null;
+    private LocalBroadcastManager broadcaster = null;
 
-	public void loadPropties() {
-		loadPropties(PROP_LIST);
-		serverAddress = getString(R.string.serverHostName);
-		serverPort = getResources().getInteger(R.integer.serverPort);
-	}
+    private static String serverAddress = null;
+    private static int serverPort;
 
-	public User getUser() {
-		return user;
-	}
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        broadcaster = LocalBroadcastManager.getInstance(this);
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-	
-	public void initializeClipboardListener() {
-		clipBoard = (ClipboardManager) getSystemService( CLIPBOARD_SERVICE );
-		clipboardListener = new ClipboardListener( clipBoard, new Callback() {
+    public void loadPropties() {
+        loadPropties(PROP_LIST);
+        serverAddress = getString(R.string.serverHostName);
+        serverPort = getResources().getInteger(R.integer.serverPort);
+    }
 
-			@Override
-			public void execute( Object object ) {
-				String clipboardText = (String) object;
-				ClipboardConnector.send( new Message( clipboardText, user ) );
-			}
-		} );
-		clipBoard.addPrimaryClipChangedListener( clipboardListener );
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void establishConnection() {
-		Log.d(TAG, "Establishing connection to server...");
-		
-		// Listen for clipboard content from other clients
-		ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-			@Override
-			public void onMessageReceived(Message message) {
-				clipboardListener.updateClipboardContent(message.getText());
-				clipBoard.setText(message.getText());
-				
-				// broadcast the message so that activities can update
-				Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
-				intent.putExtra("message", message.getText());
-				broadcaster.sendBroadcast(intent);
-			}
+    public CipherManager getCipherManager() {
+        return cipherManager;
+    }
 
-			@Override
-			public void onConnect() {
-				ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-				updateNotification();
-			}
+    public void setCipherManager(CipherManager cipherManager) {
+        this.cipherManager = cipherManager;
+    }
 
-			@Override
-			public void onDisconnect() {
-				Log.d(TAG, "disconnected!");
-				updateNotification();
-			}
+    public void initializeClipboardListener() {
+        clipBoard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboardListener = new ClipboardListener(clipBoard, new Callback() {
 
-		});
-	}
-	
-	public NotificationCompat.Builder getNotificationBuilder( Context context ) {
-		PendingIntent pendingIntent = PendingIntent.getActivity( context, 0, IntentUtil.getHomePageIntent( context ), PendingIntent.FLAG_CANCEL_CURRENT );
+            @Override
+            public void execute(Object object) {
+                String clipboardText = (String) object;
+                ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+            }
+        });
+        clipBoard.addPrimaryClipChangedListener(clipboardListener);
+    }
 
-		notificationBuilder = new NotificationCompat.Builder( context )
-			.setContentTitle( "Oneclipboard" )
-			.setSmallIcon( R.drawable.logo )
-			.setContentIntent( pendingIntent )
-			.setAutoCancel( true );
-		
-		return notificationBuilder;
-	}
-	
-	public void updateNotification() {
-		Log.d( TAG, "notificationBuilder: " + notificationBuilder );
-		if( notificationBuilder != null ) {
-			notificationBuilder.setContentText( Utility.getConnectionStatus() );
-			NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.notify(ClipboardApplication.NOTIFICATION_ID, notificationBuilder.build());
-		}
-	}
+    public void establishConnection() {
+        Log.d(TAG, "Establishing connection to server...");
 
-	private void loadPropties(String[] fileList) {
-		PropertyLoader loader = new PropertyLoader() {
+        // Listen for clipboard content from other clients
+        ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
 
-			@Override
-			public void load(Properties properties, String fileName) {
-				try {
-					InputStream fileStream = getAssets().open(fileName);
-					properties.load(fileStream);
-					fileStream.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-					Log.d(TAG, e.getMessage());
-				}
-			}
-		};
-		ApplicationProperties.loadProperties(fileList, loader);
-	}
+            @Override
+            public void onMessageReceived(Message message) {
+                String clipboardText = cipherManager.decrypt(message.getText());
+                clipboardListener.updateClipboardContent(clipboardText);
+                clipBoard.setText(clipboardText);
+
+                // broadcast the message so that activities can update
+                Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
+                intent.putExtra("message", clipboardText);
+                broadcaster.sendBroadcast(intent);
+            }
+
+            @Override
+            public void onConnect() {
+                ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
+                updateNotification();
+            }
+
+            @Override
+            public void onDisconnect() {
+                Log.d(TAG, "disconnected!");
+                updateNotification();
+            }
+
+        });
+    }
+
+    public NotificationCompat.Builder getNotificationBuilder(Context context) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, IntentUtil.getHomePageIntent(context), PendingIntent.FLAG_CANCEL_CURRENT);
+
+        notificationBuilder = new NotificationCompat.Builder(context)
+                .setContentTitle("Oneclipboard")
+                .setSmallIcon(R.drawable.logo)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        return notificationBuilder;
+    }
+
+    public void updateNotification() {
+        Log.d(TAG, "notificationBuilder: " + notificationBuilder);
+        if (notificationBuilder != null) {
+            notificationBuilder.setContentText(Utility.getConnectionStatus());
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(ClipboardApplication.NOTIFICATION_ID, notificationBuilder.build());
+        }
+    }
+
+    private void loadPropties(String[] fileList) {
+        PropertyLoader loader = new PropertyLoader() {
+
+            @Override
+            public void load(Properties properties, String fileName) {
+                try {
+                    InputStream fileStream = getAssets().open(fileName);
+                    properties.load(fileStream);
+                    fileStream.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+        };
+        ApplicationProperties.loadProperties(fileList, loader);
+    }
 }

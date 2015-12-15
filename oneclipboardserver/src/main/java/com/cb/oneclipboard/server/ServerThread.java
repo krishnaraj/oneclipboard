@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import com.cb.oneclipboard.lib.Message;
 import com.cb.oneclipboard.lib.MessageType;
 import com.cb.oneclipboard.lib.User;
+import org.apache.commons.lang3.StringUtils;
 
 public class ServerThread extends Thread {
 	private final static Logger LOGGER = Logger.getLogger(ServerThread.class.getName());
@@ -36,7 +37,7 @@ public class ServerThread extends Thread {
 			
 			Message message = null;
 			while ((message = (Message) objInputStream.readObject()) != null) {
-				LOGGER.info(String.format("Received '%s' from %s at %s", message.getText(), message.getUser().getUserName(),
+				LOGGER.info(String.format("Received '%s' from %s at %s", StringUtils.abbreviate(message.getText(), 10), message.getUser().getUserName(),
 						getHostAddress()));
 
 				if (message.getMessageType() == MessageType.REGISTER) {

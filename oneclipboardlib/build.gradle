@@ -9,3 +9,7 @@ sourceCompatibility = 1.7
 version = '1.0'
 
 sourceSets.main.java.srcDirs = ['src']
+
+dependencies {
+    compile 'org.jasypt:jasypt:1.9.2'
+}

@@ -87,6 +87,10 @@ public class Client implements PropertyChangeListener {
             case STOP:
                 client.stop();
                 break;
+            case LOGOUT:
+                prefs.clear();
+                client.stop();
+                ui.showLogin();
         }
     }
 

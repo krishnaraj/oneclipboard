@@ -1,26 +1,19 @@
 package com.cb.oneclipboard.desktop;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.PrintStream;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
-
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.gui.ApplicationUI;
-import com.cb.oneclipboard.desktop.gui.Tray;
 import com.cb.oneclipboard.lib.*;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Client implements PropertyChangeListener {
     private static Client client = null;

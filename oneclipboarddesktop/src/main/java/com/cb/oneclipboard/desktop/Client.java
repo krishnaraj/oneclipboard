@@ -27,6 +27,8 @@ public class Client implements PropertyChangeListener {
 
     public static final String[] PROP_LIST = {"config.properties"};
 
+    private ClientPreferences prefs = new ClientPreferences();
+
     public static void main(String[] args) {
         // Set logging file location
         String logFileLocation = System.getProperty("user.home") + File.separator + "onecliboarddesktop.log";
@@ -59,7 +61,12 @@ public class Client implements PropertyChangeListener {
 
         propertyChangeSupport.addPropertyChangeListener(this);
 
-        ui.showLogin();
+        if (prefs.getUsername() != null && prefs.getPassword() != null) {
+            user = new User(prefs.getUsername(), prefs.getPassword());
+            setupAndStart();
+        } else {
+            ui.showLogin();
+        }
     }
 
     @Override
@@ -70,9 +77,9 @@ public class Client implements PropertyChangeListener {
         switch (property) {
             case LOGIN:
                 user = (User) evt.getNewValue();
-                cipherManager = new CipherManager(user);
-                client.start();
-                ui.createAndShowTray();
+                prefs.setUsername(user.getUserName());
+                prefs.setPassword(user.getPassword());
+                setupAndStart();
                 break;
             case START:
                 client.start();
@@ -81,6 +88,12 @@ public class Client implements PropertyChangeListener {
                 client.stop();
                 break;
         }
+    }
+
+    private void setupAndStart() {
+        cipherManager = new CipherManager(user);
+        client.start();
+        ui.createAndShowTray();
     }
 
     public void start() {

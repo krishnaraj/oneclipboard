@@ -4,6 +4,7 @@
     <string name="app_name">One Clipboard</string>
     <string name="login_instruction">Enter any username/password but make sure all your other devices share the same.</string>
     <string name="menu_quit">Quit</string>
+    <string name="menu_logout">Log Out</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>

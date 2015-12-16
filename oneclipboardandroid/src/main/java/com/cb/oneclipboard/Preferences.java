@@ -38,4 +38,8 @@ public class Preferences {
         editor.putString(key, value);
         editor.commit();
     }
+
+    public void clear() {
+        sharedPreferences.edit().clear().commit();
+    }
 }

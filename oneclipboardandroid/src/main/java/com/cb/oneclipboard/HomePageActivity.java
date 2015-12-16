@@ -62,14 +62,26 @@ public class HomePageActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        ClipboardApplication app = (ClipboardApplication) getApplication();
+
         switch (item.getItemId()) {
             case R.id.menu_quit:
-                Intent oneclipboardServiceIntent = new Intent(this, OneClipboardService.class);
-                stopService(oneclipboardServiceIntent);
+                stopService();
                 finish();
                 return true;
+            case R.id.menu_logout:
+                stopService();
+                app.pref.clear();
+                Intent login = new Intent(this, MainActivity.class);
+                startActivity(login);
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void stopService() {
+        Intent oneclipboardServiceIntent = new Intent(this, OneClipboardService.class);
+        stopService(oneclipboardServiceIntent);
     }
 }

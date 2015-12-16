@@ -1,9 +1,16 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/menu_logout"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="@string/menu_logout"/>
 
     <item
         android:id="@+id/menu_quit"
-        android:orderInCategory="100"
-        android:showAsAction="never"
+        android:orderInCategory="101"
+        app:showAsAction="never"
         android:title="@string/menu_quit"/>
 
 </menu>

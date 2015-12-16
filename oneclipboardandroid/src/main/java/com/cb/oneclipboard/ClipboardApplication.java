@@ -1,8 +1,5 @@
 package com.cb.oneclipboard;
 
-import java.io.InputStream;
-import java.util.Properties;
-
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,11 +9,13 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.cb.oneclipboard.lib.*;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.cb.oneclipboard.util.IntentUtil;
 import com.cb.oneclipboard.util.Utility;
+
+import java.io.InputStream;
+import java.util.Properties;
 
 public class ClipboardApplication extends Application {
     public static final int NOTIFICATION_ID = 1;
@@ -33,6 +32,7 @@ public class ClipboardApplication extends Application {
     private User user = null;
     private NotificationCompat.Builder notificationBuilder = null;
     private LocalBroadcastManager broadcaster = null;
+    public Preferences pref = null;
 
     private static String serverAddress = null;
     private static int serverPort;
@@ -40,11 +40,12 @@ public class ClipboardApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        pref = new Preferences(this);
         broadcaster = LocalBroadcastManager.getInstance(this);
     }
 
-    public void loadPropties() {
-        loadPropties(PROP_LIST);
+    public void loadProperties() {
+        loadProperties(PROP_LIST);
         serverAddress = getString(R.string.serverHostName);
         serverPort = getResources().getInteger(R.integer.serverPort);
     }
@@ -132,7 +133,7 @@ public class ClipboardApplication extends Application {
         }
     }
 
-    private void loadPropties(String[] fileList) {
+    private void loadProperties(String[] fileList) {
         PropertyLoader loader = new PropertyLoader() {
 
             @Override

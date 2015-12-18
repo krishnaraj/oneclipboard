@@ -13,7 +13,7 @@ apply plugin: 'application'
 repositories { mavenCentral() }
 
 sourceCompatibility = 1.7
-version = '1.0'
+version = '1.0.0'
 
 dependencies {
 	compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'

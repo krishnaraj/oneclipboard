@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:fillViewport="true" >
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:fillViewport="true">
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff" >
+        android:background="#ffffff">
 
         <!-- Header Starts -->
 
@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:background="@layout/header_gradient"
             android:paddingBottom="5dip"
-            android:paddingTop="5dip" >
+            android:paddingTop="5dip">
 
             <!-- Logo Start -->
 
@@ -25,7 +25,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dip"
-                android:src="@drawable/logo" android:contentDescription="@string/app_name"/>
+                android:src="@drawable/logo"
+                android:contentDescription="@string/app_name"/>
             <!-- Logo Ends -->
 
             <TextView
@@ -33,32 +34,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/login_instruction"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         </LinearLayout>
         <!-- Header Ends -->
-
-
-        <!-- Footer Start -->
-
-        <LinearLayout
-            android:id="@+id/footer"
-            android:layout_width="fill_parent"
-            android:layout_height="90dip"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/logo" >
-        </LinearLayout>
-        <!-- Footer Ends -->
-
 
         <!-- Login Form -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/login_container"
             android:layout_below="@id/header"
             android:orientation="vertical"
-            android:padding="10dip" >
+            android:padding="10dip">
 
             <!-- Email Label -->
 
@@ -66,7 +55,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/username"
-                android:textColor="#372c24" />
+                android:textColor="#372c24"/>
 
             <EditText
                 android:id="@+id/usernameField"
@@ -74,21 +63,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dip"
                 android:layout_marginTop="5dip"
-                android:singleLine="true" android:inputType="text"/>
+                android:singleLine="true"
+                android:inputType="text"/>
             <!-- Password Label -->
 
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/password"
-                android:textColor="#372c24" />
+                android:textColor="#372c24"/>
 
             <EditText
                 android:id="@+id/passwordField"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dip"
-                android:singleLine="true" android:inputType="textPassword"/>
+                android:singleLine="true"
+                android:inputType="textPassword"/>
             <!-- Login button -->
 
             <Button
@@ -96,10 +87,31 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dip"
-                android:text="@string/login" />
+                android:text="@string/login"/>
             <!-- Link to Registration Screen -->
         </LinearLayout>
         <!-- Login Form Ends -->
+
+        <!-- Footer Start -->
+
+        <LinearLayout
+            android:id="@+id/footer"
+            android:layout_below="@id/login_container"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="bottom|center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@color/footer_text_color"
+                android:text="@string/app_name"/>
+
+        </LinearLayout>
+        <!-- Footer Ends -->
 
     </RelativeLayout>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">One Clipboard</string>
+    <string name="app_name">OneClipboard</string>
     <string name="login_instruction">Enter any username/password but make sure all your other devices share the same.</string>
     <string name="menu_quit">Quit</string>
     <string name="menu_logout">Log Out</string>

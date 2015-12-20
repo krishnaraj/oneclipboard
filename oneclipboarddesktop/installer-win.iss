@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "OneClipboard"
-#define MyAppVersion "beta-1.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "Krishnaraj"
 #define MyAppURL "https://github.com/krishnaraj/oneclipboard"
 #define MyAppExeName "oneclipboarddesktop-1.0-all.jar"
@@ -32,7 +32,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
-Source: "build\libs\oneclipboarddesktop-1.0-all.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "build\libs\oneclipboarddesktop-{#MyAppVersion}-all.jar"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

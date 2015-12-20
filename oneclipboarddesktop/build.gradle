@@ -2,7 +2,7 @@ import org.apache.tools.ant.filters.*
 
 buildscript {
 	repositories { jcenter() }
-	dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:1.0.1' }
+	dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2' }
 }
 
 apply plugin: 'java'

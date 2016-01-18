@@ -1,10 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
-setProperty(propertyName: "serverHostName", defaultValue: "localhost")
-setProperty(propertyName: "serverPort", defaultValue: "4545")
-
-def setProperty(Map<String, String> args) {
-    if (!project.hasProperty(args.propertyName)) {
-        ext[args.propertyName] = args.defaultValue
+buildscript {
+    repositories {
+        mavenCentral()
     }
+    dependencies {
+        classpath 'net.saliman:gradle-properties-plugin:1.4.4'
+    }
+}
+
+allprojects {
+    apply plugin: 'net.saliman.properties'
 }

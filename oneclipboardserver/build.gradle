@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 buildscript {
   repositories { jcenter() }
   dependencies {
@@ -20,9 +22,25 @@ version = '1.0'
 dependencies {
     compile project(':oneclipboardlib')
     compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.46'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
 sourceSets.main.resources.srcDirs = ['src/main/resources']
 
 mainClassName = "com.cb.oneclipboard.server.Server"
+
+processResources {
+    filesMatching('**/config.properties') {
+        filter ReplaceTokens, tokens: [
+                "serverPrivateKeyStorePass": project.serverPrivateKeyStorePass,
+                "clientPublicKeyStorePass": project.clientPublicKeyStorePass
+        ]
+    }
+    doLast {
+        copy{
+            from([project.serverPrivateKeyStorePath, project.clientPublicKeyStorePath])
+            into "${destinationDir}"
+        }
+    }
+}

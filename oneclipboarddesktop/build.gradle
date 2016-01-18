@@ -2,21 +2,24 @@ import org.apache.tools.ant.filters.*
 
 buildscript {
 	repositories { jcenter() }
-	dependencies { classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2' }
+	dependencies {
+		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+	}
 }
+
+repositories { mavenCentral() }
 
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 
-repositories { mavenCentral() }
-
 sourceCompatibility = 1.7
 version = '1.0.0'
 
 dependencies {
 	compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
+	compile 'org.bouncycastle:bcprov-jdk15on:1.46'
 	compile project(':oneclipboardlib')
 }
 
@@ -27,8 +30,16 @@ mainClassName = "com.cb.oneclipboard.desktop.Client"
 
 processResources {
 	filesMatching('**/config.properties') {
-		filter {
-			it.replace('localhost', rootProject.ext.serverHostName)
+		filter ReplaceTokens, tokens: [
+				"serverHostName": project.serverHostName,
+				"serverPublicKeyStorePass": project.serverPublicKeyStorePass,
+				"clientPrivateKeyStorePass": project.clientPrivateKeyStorePass
+		]
+	}
+	doLast {
+		copy{
+			from([project.serverPublicKeyStorePath, project.clientPrivateKeyStorePath])
+			into "${destinationDir}"
 		}
 	}
 }

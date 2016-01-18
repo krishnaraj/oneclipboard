@@ -10,6 +10,10 @@
 oneclipboarddesktop/Output/
 .gradle
 local.properties
-gradle.properties
+gradle-local.properties
 .idea
 *.iml
+client.private
+client.public
+server.private
+server.public

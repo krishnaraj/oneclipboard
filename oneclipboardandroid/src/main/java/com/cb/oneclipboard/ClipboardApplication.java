@@ -10,10 +10,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.cb.oneclipboard.lib.*;
+import com.cb.oneclipboard.lib.security.KeyStoreBuilder;
+import com.cb.oneclipboard.lib.security.KeyStoreManager;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.cb.oneclipboard.util.IntentUtil;
 import com.cb.oneclipboard.util.Utility;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -36,6 +39,8 @@ public class ClipboardApplication extends Application {
 
     private static String serverAddress = null;
     private static int serverPort;
+    private static String serverPublicKeyStorePass;
+    private static String clientPrivateKeyStorePass;
 
     @Override
     public void onCreate() {
@@ -48,6 +53,8 @@ public class ClipboardApplication extends Application {
         loadProperties(PROP_LIST);
         serverAddress = getString(R.string.serverHostName);
         serverPort = getResources().getInteger(R.integer.serverPort);
+        serverPublicKeyStorePass = getString(R.string.serverPublicKeyStorePass);
+        clientPrivateKeyStorePass = getString(R.string.clientPrivateKeyStorePass);
     }
 
     public User getUser() {
@@ -82,34 +89,62 @@ public class ClipboardApplication extends Application {
     public void establishConnection() {
         Log.d(TAG, "Establishing connection to server...");
 
-        // Listen for clipboard content from other clients
-        ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+        InputStream clientPrivateKeyStoreIns = null;
+        InputStream serverPublicKeyStoreIns = null;
 
-            @Override
-            public void onMessageReceived(Message message) {
-                String clipboardText = cipherManager.decrypt(message.getText());
-                clipboardListener.updateClipboardContent(clipboardText);
-                clipBoard.setText(clipboardText);
+        try {
+            clientPrivateKeyStoreIns = getResources().openRawResource(R.raw.client);
+            serverPublicKeyStoreIns = getResources().openRawResource(R.raw.server);
 
-                // broadcast the message so that activities can update
-                Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
-                intent.putExtra("message", clipboardText);
-                broadcaster.sendBroadcast(intent);
-            }
+            KeyStoreManager keyStoreManager = new KeyStoreBuilder()
+                    .privateKeyStorePass(clientPrivateKeyStorePass)
+                    .privateKeyStoreInputStream(clientPrivateKeyStoreIns)
+                    .publicKeyStorePass(serverPublicKeyStorePass)
+                    .publicKeyStoreInputStream(serverPublicKeyStoreIns)
+                    .build();
 
-            @Override
-            public void onConnect() {
-                ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-                updateNotification();
-            }
+            // Listen for clipboard content from other clients
+            ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
 
-            @Override
-            public void onDisconnect() {
-                Log.d(TAG, "disconnected!");
-                updateNotification();
-            }
+                @Override
+                public void onMessageReceived(Message message) {
+                    String clipboardText = cipherManager.decrypt(message.getText());
+                    clipboardListener.updateClipboardContent(clipboardText);
+                    clipBoard.setText(clipboardText);
 
-        });
+                    // broadcast the message so that activities can update
+                    Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
+                    intent.putExtra("message", clipboardText);
+                    broadcaster.sendBroadcast(intent);
+                }
+
+                @Override
+                public void onConnect() {
+                    ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
+                    updateNotification();
+                }
+
+                @Override
+                public void onDisconnect() {
+                    Log.d(TAG, "disconnected!");
+                    updateNotification();
+                }
+
+            }, keyStoreManager);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to establish connection", e);
+        } finally {
+            closeStream(clientPrivateKeyStoreIns);
+            closeStream(serverPublicKeyStoreIns);
+        }
+    }
+
+    private void closeStream(InputStream inputStream) {
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to close stream.", e);
+        }
     }
 
     public NotificationCompat.Builder getNotificationBuilder(Context context) {

@@ -3,23 +3,34 @@ package com.cb.oneclipboard.desktop;
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.gui.ApplicationUI;
 import com.cb.oneclipboard.lib.*;
+import com.cb.oneclipboard.lib.security.KeyStoreBuilder;
+import com.cb.oneclipboard.lib.security.KeyStoreManager;
 import com.cb.oneclipboard.lib.socket.ClipboardConnector;
 import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.security.Security;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Client implements PropertyChangeListener {
+    private final static Logger LOGGER = Logger.getLogger(Client.class.getName());
     private static Client client = null;
     private static ApplicationUI ui = new ApplicationUI();
     private static String serverAddress = null;
     private static int serverPort;
+    private static String serverPublicKeyStorePass;
+    private static String serverPublicKeyStorePath = "/server.public";
+    private static String clientPrivateKeyStorePass;
+    private static String clientPrivateKeyStorePath = "/client.private";
     private static ScheduledExecutorService scheduler = null;
     private static User user = null;
     private static CipherManager cipherManager = null;
@@ -51,6 +62,8 @@ public class Client implements PropertyChangeListener {
         ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
         serverAddress = ApplicationProperties.getStringProperty("server");
         serverPort = ApplicationProperties.getIntProperty("server_port");
+        serverPublicKeyStorePass = ApplicationProperties.getStringProperty("serverPublicKeyStorePass");
+        clientPrivateKeyStorePass = ApplicationProperties.getStringProperty("clientPrivateKeyStorePass");
 
         if (args.length > 0) {
             try {
@@ -101,45 +114,75 @@ public class Client implements PropertyChangeListener {
     }
 
     public void start() {
-        final TextTransfer textTransfer = new TextTransfer();
-        scheduler = Executors.newScheduledThreadPool(1);
+        InputStream clientPrivateKeyStoreIns = null;
+        InputStream serverPublicKeyStoreIns = null;
 
-        // Poll the clipboard for changes
-        final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
+        try {
+            final TextTransfer textTransfer = new TextTransfer();
+            scheduler = Executors.newScheduledThreadPool(1);
 
-            @Override
-            public void execute(Object object) {
-                String clipboardText = (String) object;
-                ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
-            }
-        });
+            // Poll the clipboard for changes
+            final ClipboardPollTask clipboardPollTask = new ClipboardPollTask(textTransfer, new Callback() {
 
-        // Listen for clipboard content from other clients
-        ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+                @Override
+                public void execute(Object object) {
+                    String clipboardText = (String) object;
+                    ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+                }
+            });
 
-            @Override
-            public void onMessageReceived(Message message) {
-                String clipboardText = cipherManager.decrypt(message.getText());
-                clipboardPollTask.updateClipboardContent(clipboardText);
-                textTransfer.setClipboardContents(clipboardText);
-            }
+            clientPrivateKeyStoreIns = Client.class.getResourceAsStream(clientPrivateKeyStorePath);
+            serverPublicKeyStoreIns = Client.class.getResourceAsStream(serverPublicKeyStorePath);
 
-            @Override
-            public void onConnect() {
-                ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-            }
+            Security.addProvider(new BouncyCastleProvider());
 
-            @Override
-            public void onDisconnect() {
-                // TODO Auto-generated method stub
+            KeyStoreManager keyStoreManager = new KeyStoreBuilder()
+                    .privateKeyStorePass(clientPrivateKeyStorePass)
+                    .privateKeyStoreInputStream(clientPrivateKeyStoreIns)
+                    .publicKeyStorePass(serverPublicKeyStorePass)
+                    .publicKeyStoreInputStream(serverPublicKeyStoreIns)
+                    .build();
 
-            }
+            // Listen for clipboard content from other clients
+            ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
 
-        });
+                @Override
+                public void onMessageReceived(Message message) {
+                    String clipboardText = cipherManager.decrypt(message.getText());
+                    clipboardPollTask.updateClipboardContent(clipboardText);
+                    textTransfer.setClipboardContents(clipboardText);
+                }
 
-        // Run the poll task every 2 seconds
-        final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
+                @Override
+                public void onConnect() {
+                    ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
+                }
 
+                @Override
+                public void onDisconnect() {
+                    // TODO Auto-generated method stub
+
+                }
+
+            }, keyStoreManager);
+
+            // Run the poll task every 2 seconds
+            final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error starting client", e);
+        } finally {
+            closeStream(clientPrivateKeyStoreIns);
+            closeStream(serverPublicKeyStoreIns);
+        }
+
+    }
+
+    private void closeStream(InputStream inputStream) {
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to close stream.", e);
+        }
     }
 
     public void stop() {

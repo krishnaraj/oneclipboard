@@ -2,64 +2,45 @@ package com.cb.oneclipboard.lib;
 
 import java.io.Serializable;
 
-public class User implements Serializable{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6709827468159234065L;
-	private String userName;
-	private String password;
+public class User implements Serializable {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -6709827468159234065L;
+    private String userName;
+    private String sha256Hash;
 
-	public User(String userName, String password) {
-		super();
-		this.userName = userName;
-		this.password = password;
-	}
+    public User(String userName, String sha256Hash) {
+        super();
+        this.userName = userName;
+        this.sha256Hash = sha256Hash;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((password == null) ? 0 : password.hashCode());
-		result = prime * result + ((userName == null) ? 0 : userName.hashCode());
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		if (password == null) {
-			if (other.password != null)
-				return false;
-		} else if (!password.equals(other.password))
-			return false;
-		if (userName == null) {
-			if (other.userName != null)
-				return false;
-		} else if (!userName.equals(other.userName))
-			return false;
-		return true;
-	}
+        User user = (User) o;
 
-	public String getUserName() {
-		return userName;
-	}
+        return sha256Hash != null ? sha256Hash.equals(user.sha256Hash) : user.sha256Hash == null;
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    @Override
+    public int hashCode() {
+        return sha256Hash != null ? sha256Hash.hashCode() : 0;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getSha256Hash() {
+        return sha256Hash;
+    }
+
+    public void setSha256Hash(String sha256Hash) {
+        this.sha256Hash = sha256Hash;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
 }

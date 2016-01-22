@@ -7,9 +7,10 @@ import org.jasypt.util.text.BasicTextEncryptor;
  */
 public class CipherManager {
     private BasicTextEncryptor encryptor = new BasicTextEncryptor();
+    private String encryptionPassword;
 
-    public CipherManager(User user) {
-        String encryptionPassword = user.getUserName() + user.getPassword();
+    public CipherManager(String userName, String password) {
+        encryptionPassword = userName + password;
         encryptor.setPassword(encryptionPassword);
     }
 
@@ -19,5 +20,9 @@ public class CipherManager {
 
     public String decrypt(String text) {
         return encryptor.decrypt(text);
+    }
+
+    public String getEncryptionPassword() {
+        return encryptionPassword;
     }
 }

@@ -3,7 +3,7 @@ package com.cb.oneclipboard.desktop.gui;
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.Client;
 import com.cb.oneclipboard.desktop.Utilities;
-import com.cb.oneclipboard.lib.User;
+import com.cb.oneclipboard.desktop.model.Credentials;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,7 +66,7 @@ public class LoginDialog extends JDialog {
                     return;
                 }
                 LoginDialog.this.dispose();
-                Client.propertyChangeSupport.firePropertyChange(Property.LOGIN, null, new User(userName, password));
+                Client.propertyChangeSupport.firePropertyChange(Property.LOGIN, null, new Credentials(userName, password));
             }
         });
         btnLogin.setBounds(10, 111, 117, 25);

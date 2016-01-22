@@ -35,9 +35,10 @@ public class ServerThread extends Thread {
 			
 			Registery.register(this);
 			
-			Message message = null;
+			Message message;
 			while ((message = (Message) objInputStream.readObject()) != null) {
-				LOGGER.info(String.format("Received '%s' from %s at %s", StringUtils.abbreviate(message.getText(), 10), message.getUser().getUserName(),
+				String abbMessageText = StringUtils.abbreviate(message.getText(), 10);
+				LOGGER.info(String.format("Received '%s' from %s@%s", abbMessageText, message.getUser().getUserName(),
 						getHostAddress()));
 
 				if (message.getMessageType() == MessageType.REGISTER) {
@@ -45,7 +46,7 @@ public class ServerThread extends Thread {
 				} else if (message.getMessageType() == MessageType.CLIPBOARD_TEXT && user != null) { // if we haven't received the register message than ignore the text messages
 					for (ServerThread serverThread : Registery.getClientSockets()) {
 						if (!this.socket.equals(serverThread.socket) && this.user.equals(serverThread.user)) {
-							LOGGER.info(String.format("Sending '%s' to %s at %s", message.getText(),
+							LOGGER.info(String.format("Sending '%s' to %s@%s", abbMessageText,
 									serverThread.user.getUserName(), serverThread.getHostAddress()));
 							try {
 								serverThread.send(message);

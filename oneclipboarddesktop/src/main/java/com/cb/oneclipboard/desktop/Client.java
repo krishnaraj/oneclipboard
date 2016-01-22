@@ -2,6 +2,7 @@ package com.cb.oneclipboard.desktop;
 
 import com.cb.oneclipboard.desktop.ApplicationConstants.Property;
 import com.cb.oneclipboard.desktop.gui.ApplicationUI;
+import com.cb.oneclipboard.desktop.model.Credentials;
 import com.cb.oneclipboard.lib.*;
 import com.cb.oneclipboard.lib.security.KeyStoreBuilder;
 import com.cb.oneclipboard.lib.security.KeyStoreManager;
@@ -10,6 +11,7 @@ import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
@@ -32,8 +34,8 @@ public class Client implements PropertyChangeListener {
     private static String clientPrivateKeyStorePass;
     private static String clientPrivateKeyStorePath = "/client.private";
     private static ScheduledExecutorService scheduler = null;
-    private static User user = null;
     private static CipherManager cipherManager = null;
+    private static User user = null;
     public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport();
 
     public static final String[] PROP_LIST = {"config.properties"};
@@ -75,7 +77,6 @@ public class Client implements PropertyChangeListener {
         propertyChangeSupport.addPropertyChangeListener(this);
 
         if (prefs.getUsername() != null && prefs.getPassword() != null) {
-            user = new User(prefs.getUsername(), prefs.getPassword());
             setupAndStart();
         } else {
             ui.showLogin();
@@ -89,9 +90,9 @@ public class Client implements PropertyChangeListener {
 
         switch (property) {
             case LOGIN:
-                user = (User) evt.getNewValue();
-                prefs.setUsername(user.getUserName());
-                prefs.setPassword(user.getPassword());
+                Credentials credentials = (Credentials) evt.getNewValue();
+                prefs.setUsername(credentials.getUserName());
+                prefs.setPassword(credentials.getPassword());
                 setupAndStart();
                 break;
             case START:
@@ -108,9 +109,23 @@ public class Client implements PropertyChangeListener {
     }
 
     private void setupAndStart() {
-        cipherManager = new CipherManager(user);
-        client.start();
-        ui.createAndShowTray();
+        try {
+            cipherManager = new CipherManager(prefs.getUsername(), prefs.getPassword());
+            String sha256Hash = Util.getSha256Hash(cipherManager.getEncryptionPassword());
+            user = new User(prefs.getUsername(), sha256Hash);
+            client.start();
+            ui.createAndShowTray();
+        } catch (Exception e) {
+            final String errorMsg = "Unable to initialize OneClipboard";
+            LOGGER.log(Level.SEVERE, errorMsg, e);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ui.showErrorDialog(errorMsg);
+                    System.exit(1);
+                }
+            });
+        }
     }
 
     public void start() {

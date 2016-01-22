@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.cb.oneclipboard.lib.CipherManager;
 import com.cb.oneclipboard.lib.User;
+import com.cb.oneclipboard.lib.Util;
 import com.cb.oneclipboard.util.IntentUtil;
 
 public class MainActivity extends Activity {
@@ -22,8 +23,7 @@ public class MainActivity extends Activity {
 
         if (!OneClipboardService.isRunning) {
             if (app.pref.getUsername() != null && app.pref.getPassword() != null) {
-                User user = new User(app.pref.getUsername(), app.pref.getPassword());
-                initAndStart(user);
+                initAndStart();
             } else {
                 setContentView(R.layout.login);
                 Button loginButton = (Button) findViewById(R.id.btnLogin);
@@ -37,10 +37,9 @@ public class MainActivity extends Activity {
                         String password = passwordField.getText().toString().trim();
 
                         if (username.length() > 0 && password.length() > 0) {
-                            User user = new User(username, password);
                             app.pref.setUsername(username);
                             app.pref.setPassword(password);
-                            initAndStart(user);
+                            initAndStart();
                         }
                     }
 
@@ -54,15 +53,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void initAndStart(User user) {
-        ClipboardApplication app = ((ClipboardApplication) getApplicationContext());
-        app.setUser(user);
-        app.setCipherManager(new CipherManager(user));
+    public void initAndStart() {
+        try {
+            ClipboardApplication app = ((ClipboardApplication) getApplicationContext());
+            CipherManager cipherManager = new CipherManager(app.pref.getUsername(), app.pref.getPassword());
+            String sha256Hash = Util.getSha256Hash(cipherManager.getEncryptionPassword());
+            User user = new User(app.pref.getUsername(), sha256Hash);
+            app.setUser(user);
+            app.setCipherManager(cipherManager);
 
-        Intent oneclipboardServiceIntent = new Intent(MainActivity.this, OneClipboardService.class);
-        startService(oneclipboardServiceIntent);
+            Intent oneclipboardServiceIntent = new Intent(MainActivity.this, OneClipboardService.class);
+            startService(oneclipboardServiceIntent);
 
-        Toast.makeText(this, getString(R.string.app_name) + " has started!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.app_name) + " has started!", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Unable to initialize " + getString(R.string.app_name), Toast.LENGTH_SHORT).show();
+        }
 
         finish();
     }

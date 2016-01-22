@@ -22,25 +22,20 @@ import java.util.Properties;
 
 public class ClipboardApplication extends Application {
     public static final int NOTIFICATION_ID = 1;
-
-    private static final String TAG = ClipboardApplication.class.getName();
     public static final String CLIPBOARD_UPDATED = "clipboard_updated";
-
+    private static final String TAG = ClipboardApplication.class.getName();
     private static final String[] PROP_LIST = {"app.properties"};
-    private ClipboardListener clipboardListener = null;
-    private ClipboardManager clipBoard = null;
-
-    private CipherManager cipherManager = null;
-
-    private User user = null;
-    private NotificationCompat.Builder notificationBuilder = null;
-    private LocalBroadcastManager broadcaster = null;
-    public Preferences pref = null;
-
     private static String serverAddress = null;
     private static int serverPort;
     private static String serverPublicKeyStorePass;
     private static String clientPrivateKeyStorePass;
+    public Preferences pref = null;
+    private ClipboardListener clipboardListener = null;
+    private ClipboardManager clipBoard = null;
+    private CipherManager cipherManager = null;
+    private User user = null;
+    private NotificationCompat.Builder notificationBuilder = null;
+    private LocalBroadcastManager broadcaster = null;
 
     @Override
     public void onCreate() {
@@ -79,8 +74,13 @@ public class ClipboardApplication extends Application {
 
             @Override
             public void execute(Object object) {
-                String clipboardText = (String) object;
-                ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+                final String clipboardText = (String) object;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+                    }
+                }).start();
             }
         });
         clipBoard.addPrimaryClipChangedListener(clipboardListener);

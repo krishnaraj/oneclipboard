@@ -33,7 +33,8 @@ processResources {
 		filter ReplaceTokens, tokens: [
 				"serverHostName": project.serverHostName,
 				"serverPublicKeyStorePass": project.serverPublicKeyStorePass,
-				"clientPrivateKeyStorePass": project.clientPrivateKeyStorePass
+				"clientPrivateKeyStorePass": project.clientPrivateKeyStorePass,
+				"version": version
 		]
 	}
 	doLast {

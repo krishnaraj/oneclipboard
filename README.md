@@ -12,6 +12,7 @@ An Android + Desktop app to sync clipboard automatically
 ###SSL
 Before building, the public and private keys need to be generated for use with SSLSocket. Use 'generatekeys.sh'
 or 'generatekeys.bat' for the same.
+
 **NOTE:** The keystore is of type BKS and the JCE policy files might need to installed for the scripts to work.
 Refer - http://yaragalla.blogspot.in/2013/05/how-to-create-ssl-serversocket-on.html
 

@@ -17,3 +17,6 @@ client.private
 client.public
 server.private
 server.public
+*.jks
+*.apk
+

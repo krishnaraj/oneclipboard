@@ -4,6 +4,7 @@ buildscript {
 	repositories { jcenter() }
 	dependencies {
 		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+		classpath 'com.bmuschko:gradle-izpack-plugin:2.1'
 	}
 }
 
@@ -13,14 +14,19 @@ apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'eclipse'
 apply plugin: 'application'
+apply plugin: 'com.bmuschko.izpack'
 
 sourceCompatibility = 1.7
 version = '1.0.0'
+
+def applicationName = 'OneClipboard'
+def jarName = applicationName + '.jar'
 
 dependencies {
 	compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
 	compile 'org.bouncycastle:bcprov-jdk15on:1.46'
 	compile project(':oneclipboardlib')
+	izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
@@ -43,4 +49,22 @@ processResources {
 			into "${destinationDir}"
 		}
 	}
+}
+
+shadowJar {
+	archiveName = jarName
+}
+
+izpack {
+	izPackCreateInstaller.dependsOn shadowJar
+	baseDir = file("$buildDir")
+	appProperties = [
+			'app.name': applicationName,
+			'app.jar': 'OneClipboard.jar',
+			'app.version': version,
+			'app.jar.path': 'libs/' + jarName,
+			'app.author.name': project.authorName,
+			'app.author.email': project.authorEmail,
+			'app.website': project.appWebsite
+	]
 }

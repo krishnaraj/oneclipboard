@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<shortcuts>
+
+    <skipIfNotSupported />
+
+    <programGroup defaultName="$app.name" location="applications" />
+
+    <shortcut name="$app.name" programGroup="yes" desktop="yes" applications="no" startMenu="yes"
+        startup="yes" target="$INSTALL_PATH\$app.jar" commandLine=""
+        description="$app.name" iconFile="$INSTALL_PATH\logo.png" iconIndex="0" initialState="noShow">
+
+        <createForPack name="Base" />
+
+    </shortcut>
+
+</shortcuts>

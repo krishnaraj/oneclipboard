@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<installation version="1.0"><!-- The info section.The meaning of the tags should be natural …-->
+    <info>
+        <appname>@{app.name}</appname>
+        <appversion>@{app.version}</appversion>
+        <authors>
+            <author name="@{app.author.name}" email="@{app.author.email}" />
+        </authors>
+        <url>@{app.website}</url>
+    </info><!-- The gui preferences indication.Sets the installer window to 640×480. It will not be able to change the size.-->
+    <guiprefs width="660" height="480" resizable="yes">
+        <modifier key="allXGap" value="0" />
+        <modifier key="allYGap" value="0" />
+        <modifier key="useHeadingPanel" value="yes" />
+        <modifier key="useButtonIcons" value="yes" />
+        <modifier key="useHeadingForSummary" value="yes" />
+        <modifier key="headingImageOnLeft" value="yes" />
+        <modifier key="headingLineCount" value="1" />
+        <modifier key="headingFontSize" value="1.5" />
+        <modifier key="headingBackgroundColor" value="0x00ffffff" />
+        <modifier key="headingPanelCounter" value="text" />
+        <modifier key="headingPanelCounterPos" value="inHeading" />
+    </guiprefs><!-- The locale section.Asks here to include the English and French langpacks.-->
+    <locale>
+        <langpack iso3="eng" />
+    </locale><!-- The resources section.The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.-->
+    <panels>
+        <panel classname="HelloPanel" />
+        <panel classname="TargetPanel" />
+        <panel classname="InstallPanel" />
+        <panel classname="SimpleFinishPanel" />
+    </panels><!-- The packs section.We specify here our packs.-->
+    <packs>
+        <pack name="core" required="yes">
+            <description>Uninstall files</description>
+        </pack>
+        <pack name="@{app.jar}" required="no" preselected="yes" hidden="false">
+            <description>$app.jar</description>
+            <file
+                src="@{app.jar.path}"
+                targetdir="$INSTALL_PATH/" override="true" />
+        </pack>
+
+    </packs>
+</installation>

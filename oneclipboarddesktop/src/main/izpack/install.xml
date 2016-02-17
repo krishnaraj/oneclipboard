@@ -21,24 +21,41 @@
         <modifier key="headingPanelCounter" value="text" />
         <modifier key="headingPanelCounterPos" value="inHeading" />
     </guiprefs><!-- The locale section.Asks here to include the English and French langpacks.-->
+    <variables>
+        <variable name="DesktopShortcutCheckboxEnabled" value="true"/>
+        <variable name="APP_NAME" value="@{app.name}"/>
+        <variable name="UNIX_START_SCRIPT" value="@{app.unixStartScript}"/>
+    </variables>
     <locale>
         <langpack iso3="eng" />
     </locale><!-- The resources section.The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.-->
+    <resources>
+        <res src="shortcutSpec.xml" id="shortcutSpec.xml"/>
+        <res id="Unix_shortcutSpec.xml" src="Unix_shortcutSpec.xml"/>
+    </resources>
     <panels>
         <panel classname="HelloPanel" />
         <panel classname="TargetPanel" />
         <panel classname="InstallPanel" />
+        <panel classname="ShortcutPanel"/>
         <panel classname="SimpleFinishPanel" />
     </panels><!-- The packs section.We specify here our packs.-->
+    <native type="izpack" name="ShellLink.dll"/>
+    <native type="izpack" name="ShellLink_x64.dll" />
     <packs>
         <pack name="core" required="yes">
             <description>Uninstall files</description>
         </pack>
-        <pack name="@{app.jar}" required="no" preselected="yes" hidden="false">
-            <description>$app.jar</description>
+        <pack name="archive" required="no" preselected="yes" hidden="false">
+            <description>Archive containing all files</description>
             <file
-                src="@{app.jar.path}"
+                src="@{app.archive.path}" unpack="true"
                 targetdir="$INSTALL_PATH/" override="true" />
+            <file
+                src="@{app.logo}"
+                targetdir="$INSTALL_PATH/" override="true" />
+            <executable targetfile="$INSTALL_PATH/@{app.unixStartScript}"
+                os="unix" stage="never" failure="warn" keep="true"/>
         </pack>
 
     </packs>

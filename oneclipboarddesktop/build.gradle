@@ -1,11 +1,11 @@
-import org.apache.tools.ant.filters.*
+import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
-	repositories { jcenter() }
-	dependencies {
-		classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
-		classpath 'com.bmuschko:gradle-izpack-plugin:2.1'
-	}
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+        classpath 'com.bmuschko:gradle-izpack-plugin:2.1'
+    }
 }
 
 repositories { mavenCentral() }
@@ -19,14 +19,14 @@ apply plugin: 'com.bmuschko.izpack'
 sourceCompatibility = 1.7
 version = '1.1.0'
 
-def applicationName = 'OneClipboard'
+applicationName = 'OneClipboard'
 def jarName = applicationName + '.jar'
 
 dependencies {
-	compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
-	compile 'org.bouncycastle:bcprov-jdk15on:1.46'
-	compile project(':oneclipboardlib')
-	izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
+    compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.46'
+    compile project(':oneclipboardlib')
+    izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
@@ -35,36 +35,47 @@ sourceSets.main.resources.srcDirs = ['src/main/resources']
 mainClassName = "com.cb.oneclipboard.desktop.Client"
 
 processResources {
-	filesMatching('**/config.properties') {
-		filter ReplaceTokens, tokens: [
-				"serverHostName": project.serverHostName,
-				"serverPublicKeyStorePass": project.serverPublicKeyStorePass,
-				"clientPrivateKeyStorePass": project.clientPrivateKeyStorePass,
-				"version": version
-		]
-	}
-	doLast {
-		copy{
-			from([project.serverPublicKeyStorePath, project.clientPrivateKeyStorePath])
-			into "${destinationDir}"
-		}
-	}
+    filesMatching('**/config.properties') {
+        filter ReplaceTokens, tokens: [
+                "serverHostName"           : project.serverHostName,
+                "serverPublicKeyStorePass" : project.serverPublicKeyStorePass,
+                "clientPrivateKeyStorePass": project.clientPrivateKeyStorePass,
+                "version"                  : version
+        ]
+    }
+    doLast {
+        copy {
+            from([project.serverPublicKeyStorePath, project.clientPrivateKeyStorePath])
+            into "${destinationDir}"
+        }
+    }
 }
 
-shadowJar {
-	archiveName = jarName
+distZip {
+    archiveName applicationName + ".zip"
+    // Avoid parent directory in zip
+    eachFile { file ->
+        String path = file.relativePath
+        file.setPath(path.substring(path.indexOf("/") + 1, path.length()))
+    }
+}
+
+task izPackAssemble(type: Copy) {
+    from 'src/main/izpack'
+    into "$buildDir/assemble/izpack"
 }
 
 izpack {
-	izPackCreateInstaller.dependsOn shadowJar
-	baseDir = file("$buildDir")
-	appProperties = [
-			'app.name': applicationName,
-			'app.jar': 'OneClipboard.jar',
-			'app.version': version,
-			'app.jar.path': 'libs/' + jarName,
-			'app.author.name': project.authorName,
-			'app.author.email': project.authorEmail,
-			'app.website': project.appWebsite
-	]
+    izPackCreateInstaller.dependsOn distZip, izPackAssemble
+    appProperties = [
+            'app.name'           : applicationName,
+            'app.winStartScript' : "bin\\$applicationName" + '.bat',
+            'app.unixStartScript': "bin/$applicationName",
+            'app.version'        : version,
+            'app.archive.path'   : "$buildDir/distributions/$distZip.archiveName",
+            'app.author.name'    : project.authorName,
+            'app.author.email'   : project.authorEmail,
+            'app.website'        : project.appWebsite,
+            'app.logo'           : rootDir.absolutePath + File.separator + "logo.png"
+    ]
 }

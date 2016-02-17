@@ -8,9 +8,7 @@
 
     <shortcut name="${APP_NAME}" programGroup="yes" desktop="yes" applications="no" startMenu="yes"
         startup="yes" target="$INSTALL_PATH\${WIN_START_SCRIPT}" commandLine=""
-        description="${APP_NAME}" iconFile="$INSTALL_PATH\logo.png" iconIndex="0" initialState="noShow">
-
-        <createForPack name="Base" />
+        description="${APP_NAME}" iconFile="$INSTALL_PATH\logo.ico" iconIndex="0" initialState="noShow">
 
     </shortcut>
 

@@ -25,6 +25,7 @@
         <variable name="DesktopShortcutCheckboxEnabled" value="true"/>
         <variable name="APP_NAME" value="@{app.name}"/>
         <variable name="UNIX_START_SCRIPT" value="@{app.unixStartScript}"/>
+        <variable name="WIN_START_SCRIPT" value="@{app.winStartScript}"/>
     </variables>
     <locale>
         <langpack iso3="eng" />
@@ -53,6 +54,9 @@
                 targetdir="$INSTALL_PATH/" override="true" />
             <file
                 src="@{app.logo}"
+                targetdir="$INSTALL_PATH/" override="true" />
+            <file
+                src="@{app.ico}"
                 targetdir="$INSTALL_PATH/" override="true" />
             <executable targetfile="$INSTALL_PATH/@{app.unixStartScript}"
                 os="unix" stage="never" failure="warn" keep="true"/>

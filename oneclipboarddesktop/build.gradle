@@ -76,6 +76,7 @@ izpack {
             'app.author.name'    : project.authorName,
             'app.author.email'   : project.authorEmail,
             'app.website'        : project.appWebsite,
-            'app.logo'           : rootDir.absolutePath + File.separator + "logo.png"
+            'app.logo'           : rootDir.absolutePath + File.separator + "logo.png",
+            'app.ico'           : rootDir.absolutePath + File.separator + "logo.ico"
     ]
 }

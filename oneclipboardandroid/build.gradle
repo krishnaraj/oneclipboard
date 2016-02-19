@@ -42,6 +42,9 @@ android {
           copy {
             from ([project.clientPrivateKeyStorePath, project.serverPublicKeyStorePath])
             into ("$outputDir/raw")
+            rename { filename ->
+                filename.replace '.', '_'
+            }
           }
       }
    }

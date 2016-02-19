@@ -93,8 +93,8 @@ public class ClipboardApplication extends Application {
         InputStream serverPublicKeyStoreIns = null;
 
         try {
-            clientPrivateKeyStoreIns = getResources().openRawResource(R.raw.client);
-            serverPublicKeyStoreIns = getResources().openRawResource(R.raw.server);
+            clientPrivateKeyStoreIns = getResources().openRawResource(R.raw.client_private);
+            serverPublicKeyStoreIns = getResources().openRawResource(R.raw.server_public);
 
             KeyStoreManager keyStoreManager = new KeyStoreBuilder()
                     .privateKeyStorePass(clientPrivateKeyStorePass)

@@ -3,7 +3,6 @@ package com.cb.oneclipboard.lib.socket;
 import com.cb.oneclipboard.lib.Message;
 import com.cb.oneclipboard.lib.MessageType;
 import com.cb.oneclipboard.lib.SocketListener;
-import com.cb.oneclipboard.lib.User;
 import com.cb.oneclipboard.lib.security.KeyStoreManager;
 
 import javax.net.ssl.SSLContext;
@@ -19,16 +18,10 @@ import java.util.logging.Logger;
 
 public class ClipboardConnector {
     private final static Logger LOGGER = Logger.getLogger(ClipboardConnector.class.getName());
-
-    private static Socket clientSocket;
-    private static ObjectInputStream objInputStream;
-    private static ObjectOutputStream objOutputStream;
-
     private static final int MAX_RECONNECT_ATTEMPTS = 3;
-    private static int reconnectCounter = 0;
+    private int reconnectCounter = 0;
     private static SecureRandom secureRandom;
-
-    private static volatile boolean connected = false;
+    private volatile boolean connected = false;
 
     static {
         // TODO this might slow down the app startup
@@ -36,8 +29,39 @@ public class ClipboardConnector {
         secureRandom.nextInt();
     }
 
-    public static void connect(final String server, final int port, final User user, final SocketListener messageListener,
-                               final KeyStoreManager keyStoreManager) {
+    private String server;
+    private int port;
+    private Socket clientSocket;
+    private ObjectInputStream objInputStream;
+    private ObjectOutputStream objOutputStream;
+    private SocketListener socketListener;
+    private KeyStoreManager keyStoreManager;
+
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public ClipboardConnector server(String server) {
+        this.server = server;
+        return this;
+    }
+
+    public ClipboardConnector port(int port) {
+        this.port = port;
+        return this;
+    }
+
+    public ClipboardConnector socketListener(SocketListener socketListener) {
+        this.socketListener = socketListener;
+        return this;
+    }
+
+    public ClipboardConnector keyStoreManager(KeyStoreManager keyStoreManager) {
+        this.keyStoreManager = keyStoreManager;
+        return this;
+    }
+
+    public ClipboardConnector connect() {
         final boolean listening = true;
         Thread listenerThread = new Thread(new Runnable() {
 
@@ -58,7 +82,7 @@ public class ClipboardConnector {
                     reconnectCounter++;
                     if (reconnectCounter <= MAX_RECONNECT_ATTEMPTS) {
                         LOGGER.info("Reconnect attempt " + reconnectCounter);
-                        connect(server, port, user, messageListener, keyStoreManager);
+                        connect();
                         return;
                     }
                     LOGGER.log(Level.SEVERE, "Unable to connect", e);
@@ -71,13 +95,13 @@ public class ClipboardConnector {
                 // resert counter
                 reconnectCounter = 0;
 
-                messageListener.onConnect();
+                socketListener.onConnect();
 
                 try {
                     while (listening) {
                         if (objInputStream != null) {
                             Message message = (Message) objInputStream.readObject();
-                            processMessage(message, messageListener);
+                            processMessage(message, socketListener);
                         }
                     }
 
@@ -88,16 +112,18 @@ public class ClipboardConnector {
                 } finally {
                     close();
                     connected = false;
-                    messageListener.onDisconnect();
+                    socketListener.onDisconnect();
                 }
             }
 
         }, "Incoming message listener thread");
 
         listenerThread.start();
+
+        return this;
     }
 
-    private static Socket createSocket(String server, int port, KeyStoreManager keyStoreManager) throws Exception {
+    private Socket createSocket(String server, int port, KeyStoreManager keyStoreManager) throws Exception {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyStoreManager.getKeyManagerFactory().getKeyManagers(),
                 keyStoreManager.getTrustManagerFactory().getTrustManagers(),
@@ -110,7 +136,7 @@ public class ClipboardConnector {
     }
 
     @SuppressWarnings("incomplete-switch")
-    private static void processMessage(Message message, SocketListener listener) {
+    private void processMessage(Message message, SocketListener listener) {
         switch (message.getMessageType()) {
             case CLIPBOARD_TEXT:
                 listener.onMessageReceived(message);
@@ -122,7 +148,7 @@ public class ClipboardConnector {
         }
     }
 
-    public static void send(Message message) {
+    public void send(Message message) {
         try {
             if (isConnected() && objOutputStream != null) {
                 objOutputStream.writeObject(message);
@@ -133,7 +159,7 @@ public class ClipboardConnector {
         }
     }
 
-    public static void close() {
+    public void close() {
         try {
             objInputStream.close();
             objOutputStream.close();
@@ -143,11 +169,7 @@ public class ClipboardConnector {
         }
     }
 
-    public static boolean isConnected() {
-        return connected;
-    }
-
-    public static String getServerName() {
+    public String getServerName() {
         try {
             return clientSocket.getInetAddress().getHostName();
         } catch (Exception e) {

@@ -24,7 +24,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Client implements PropertyChangeListener {
+    public static final String[] PROP_LIST = {"config.properties"};
     private final static Logger LOGGER = Logger.getLogger(Client.class.getName());
+    public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport();
+    static String lockFileName = System.getProperty("user.home") + File.separator + "oneclipboard.lock";
+    static JavaSysMon monitor = new JavaSysMon();
     private static Client client = null;
     private static ApplicationUI ui = new ApplicationUI();
     private static String serverAddress = null;
@@ -36,10 +40,7 @@ public class Client implements PropertyChangeListener {
     private static ScheduledExecutorService scheduler = null;
     private static CipherManager cipherManager = null;
     private static User user = null;
-    public static ApplicationPropertyChangeSupport propertyChangeSupport = new ApplicationPropertyChangeSupport();
-
-    public static final String[] PROP_LIST = {"config.properties"};
-
+    private ClipboardConnector clipboardConnector = null;
     private ClientPreferences prefs = new ClientPreferences();
 
     public static void main(String[] args) {
@@ -142,7 +143,7 @@ public class Client implements PropertyChangeListener {
                 @Override
                 public void execute(Object object) {
                     String clipboardText = (String) object;
-                    ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+                    send(new Message(cipherManager.encrypt(clipboardText), user));
                 }
             });
 
@@ -159,28 +160,32 @@ public class Client implements PropertyChangeListener {
                     .build();
 
             // Listen for clipboard content from other clients
-            ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+            clipboardConnector = new ClipboardConnector()
+                    .server(serverAddress)
+                    .port(serverPort)
+                    .keyStoreManager(keyStoreManager)
+                    .socketListener(new SocketListener() {
 
-                @Override
-                public void onMessageReceived(Message message) {
-                    String clipboardText = cipherManager.decrypt(message.getText());
-                    clipboardPollTask.updateClipboardContent(clipboardText);
-                    textTransfer.setClipboardContents(clipboardText);
-                }
+                        @Override
+                        public void onMessageReceived(Message message) {
+                            String clipboardText = cipherManager.decrypt(message.getText());
+                            clipboardPollTask.updateClipboardContent(clipboardText);
+                            textTransfer.setClipboardContents(clipboardText);
+                        }
 
-                @Override
-                public void onConnect() {
-                    ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-                }
+                        @Override
+                        public void onConnect() {
+                            send(new Message("register", MessageType.REGISTER, user));
+                        }
 
-                @Override
-                public void onDisconnect() {
-                    // TODO Auto-generated method stub
+                        @Override
+                        public void onDisconnect() {
+                            // TODO Auto-generated method stub
 
-                }
+                        }
 
-            }, keyStoreManager);
-
+                    })
+                    .connect();
             // Run the poll task every 2 seconds
             final ScheduledFuture<?> pollHandle = scheduler.scheduleAtFixedRate(clipboardPollTask, 1, 2, TimeUnit.SECONDS);
         } catch (Exception e) {
@@ -202,11 +207,8 @@ public class Client implements PropertyChangeListener {
 
     public void stop() {
         scheduler.shutdownNow();
-        ClipboardConnector.close();
+        clipboardConnector.close();
     }
-
-    static String lockFileName = System.getProperty("user.home") + File.separator + "oneclipboard.lock";
-    static JavaSysMon monitor = new JavaSysMon();
 
     public void lock() throws Exception {
         int currentPid = monitor.currentPid();
@@ -257,6 +259,12 @@ public class Client implements PropertyChangeListener {
             }
         }
         return pid;
+    }
+
+    private void send(Message message) {
+        if (clipboardConnector != null) {
+            clipboardConnector.send(message);
+        }
     }
 
     private void pipeSysoutToFile() {

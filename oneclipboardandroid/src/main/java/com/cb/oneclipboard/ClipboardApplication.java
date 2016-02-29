@@ -30,6 +30,7 @@ public class ClipboardApplication extends Application {
     private static String serverPublicKeyStorePass;
     private static String clientPrivateKeyStorePass;
     public Preferences pref = null;
+    private ClipboardConnector clipboardConnector = null;
     private ClipboardListener clipboardListener = null;
     private ClipboardManager clipBoard = null;
     private CipherManager cipherManager = null;
@@ -78,12 +79,16 @@ public class ClipboardApplication extends Application {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        ClipboardConnector.send(new Message(cipherManager.encrypt(clipboardText), user));
+                        send(new Message(cipherManager.encrypt(clipboardText), user));
                     }
                 }).start();
             }
         });
         clipBoard.addPrimaryClipChangedListener(clipboardListener);
+    }
+
+    public boolean isConnected() {
+        return clipboardConnector != null && clipboardConnector.isConnected();
     }
 
     public void establishConnection() {
@@ -104,33 +109,39 @@ public class ClipboardApplication extends Application {
                     .build();
 
             // Listen for clipboard content from other clients
-            ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+            clipboardConnector = new ClipboardConnector()
+                    .server(serverAddress)
+                    .port(serverPort)
+                    .keyStoreManager(keyStoreManager)
+                    .socketListener(new SocketListener() {
 
-                @Override
-                public void onMessageReceived(Message message) {
-                    String clipboardText = cipherManager.decrypt(message.getText());
-                    clipboardListener.updateClipboardContent(clipboardText);
-                    clipBoard.setText(clipboardText);
+                        @Override
+                        public void onMessageReceived(Message message) {
+                            String clipboardText = cipherManager.decrypt(message.getText());
+                            clipboardListener.updateClipboardContent(clipboardText);
+                            clipBoard.setText(clipboardText);
 
-                    // broadcast the message so that activities can update
-                    Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
-                    intent.putExtra("message", clipboardText);
-                    broadcaster.sendBroadcast(intent);
-                }
+                            // broadcast the message so that activities can update
+                            Intent intent = new Intent(ClipboardApplication.CLIPBOARD_UPDATED);
+                            intent.putExtra("message", clipboardText);
+                            broadcaster.sendBroadcast(intent);
+                        }
 
-                @Override
-                public void onConnect() {
-                    ClipboardConnector.send(new Message("register", MessageType.REGISTER, user));
-                    updateNotification();
-                }
+                        @Override
+                        public void onConnect() {
+                            send(new Message("register", MessageType.REGISTER, user));
+                            updateNotification();
+                        }
 
-                @Override
-                public void onDisconnect() {
-                    Log.d(TAG, "disconnected!");
-                    updateNotification();
-                }
+                        @Override
+                        public void onDisconnect() {
+                            Log.d(TAG, "disconnected!");
+                            updateNotification();
+                        }
 
-            }, keyStoreManager);
+                    })
+                    .connect();
+
         } catch (Exception e) {
             Log.e(TAG, "Unable to establish connection", e);
         } finally {
@@ -144,6 +155,12 @@ public class ClipboardApplication extends Application {
             inputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "Unable to close stream.", e);
+        }
+    }
+
+    private void send(Message message) {
+        if (clipboardConnector != null) {
+            clipboardConnector.send(message);
         }
     }
 
@@ -162,7 +179,7 @@ public class ClipboardApplication extends Application {
     public void updateNotification() {
         Log.d(TAG, "notificationBuilder: " + notificationBuilder);
         if (notificationBuilder != null) {
-            notificationBuilder.setContentText(Utility.getConnectionStatus());
+            notificationBuilder.setContentText(Utility.getConnectionStatus(clipboardConnector));
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(ClipboardApplication.NOTIFICATION_ID, notificationBuilder.build());
         }

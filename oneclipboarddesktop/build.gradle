@@ -38,16 +38,8 @@ processResources {
     filesMatching('**/config.properties') {
         filter ReplaceTokens, tokens: [
                 "serverHostName"           : project.serverHostName,
-                "serverPublicKeyStorePass" : project.serverPublicKeyStorePass,
-                "clientPrivateKeyStorePass": project.clientPrivateKeyStorePass,
                 "version"                  : version
         ]
-    }
-    doLast {
-        copy {
-            from([project.serverPublicKeyStorePath, project.clientPrivateKeyStorePath])
-            into "${destinationDir}"
-        }
     }
 }
 

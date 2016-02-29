@@ -33,10 +33,6 @@ public class Client implements PropertyChangeListener {
     private static ApplicationUI ui = new ApplicationUI();
     private static String serverAddress = null;
     private static int serverPort;
-    private static String serverPublicKeyStorePass;
-    private static String serverPublicKeyStorePath = "/server.public";
-    private static String clientPrivateKeyStorePass;
-    private static String clientPrivateKeyStorePath = "/client.private";
     private static ScheduledExecutorService scheduler = null;
     private static CipherManager cipherManager = null;
     private static User user = null;
@@ -65,8 +61,6 @@ public class Client implements PropertyChangeListener {
         ApplicationProperties.loadProperties(PROP_LIST, new DefaultPropertyLoader());
         serverAddress = ApplicationProperties.getStringProperty("server");
         serverPort = ApplicationProperties.getIntProperty("server_port");
-        serverPublicKeyStorePass = ApplicationProperties.getStringProperty("serverPublicKeyStorePass");
-        clientPrivateKeyStorePass = ApplicationProperties.getStringProperty("clientPrivateKeyStorePass");
 
         if (args.length > 0) {
             try {
@@ -130,9 +124,6 @@ public class Client implements PropertyChangeListener {
     }
 
     public void start() {
-        InputStream clientPrivateKeyStoreIns = null;
-        InputStream serverPublicKeyStoreIns = null;
-
         try {
             final TextTransfer textTransfer = new TextTransfer();
             scheduler = Executors.newScheduledThreadPool(1);
@@ -147,23 +138,10 @@ public class Client implements PropertyChangeListener {
                 }
             });
 
-            clientPrivateKeyStoreIns = Client.class.getResourceAsStream(clientPrivateKeyStorePath);
-            serverPublicKeyStoreIns = Client.class.getResourceAsStream(serverPublicKeyStorePath);
-
-            Security.addProvider(new BouncyCastleProvider());
-
-            KeyStoreManager keyStoreManager = new KeyStoreBuilder()
-                    .privateKeyStorePass(clientPrivateKeyStorePass)
-                    .privateKeyStoreInputStream(clientPrivateKeyStoreIns)
-                    .publicKeyStorePass(serverPublicKeyStorePass)
-                    .publicKeyStoreInputStream(serverPublicKeyStoreIns)
-                    .build();
-
             // Listen for clipboard content from other clients
             clipboardConnector = new ClipboardConnector()
                     .server(serverAddress)
                     .port(serverPort)
-                    .keyStoreManager(keyStoreManager)
                     .socketListener(new SocketListener() {
 
                         @Override
@@ -191,18 +169,8 @@ public class Client implements PropertyChangeListener {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error starting client", e);
         } finally {
-            closeStream(clientPrivateKeyStoreIns);
-            closeStream(serverPublicKeyStoreIns);
         }
 
-    }
-
-    private void closeStream(InputStream inputStream) {
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to close stream.", e);
-        }
     }
 
     public void stop() {

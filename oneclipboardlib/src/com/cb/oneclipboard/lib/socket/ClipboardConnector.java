@@ -69,7 +69,7 @@ public class ClipboardConnector {
             public void run() {
                 try {
                     LOGGER.info("Connecting to " + server + "...");
-                    clientSocket = createSocket(server, port, keyStoreManager);
+                    clientSocket = createSocket();
                     /*
                      * The objOutputStream needs to be created and flushed
 					 * before the objInputStream can be created
@@ -123,16 +123,8 @@ public class ClipboardConnector {
         return this;
     }
 
-    private Socket createSocket(String server, int port, KeyStoreManager keyStoreManager) throws Exception {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(keyStoreManager.getKeyManagerFactory().getKeyManagers(),
-                keyStoreManager.getTrustManagerFactory().getTrustManagers(),
-                secureRandom);
-
-        SSLSocketFactory sf = sslContext.getSocketFactory();
-        SSLSocket socket = (SSLSocket) sf.createSocket(server, port);
-
-        return socket;
+    private Socket createSocket() throws Exception {
+        return new Socket(server, port);
     }
 
     @SuppressWarnings("incomplete-switch")

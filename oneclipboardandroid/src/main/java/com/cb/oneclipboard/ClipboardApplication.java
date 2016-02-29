@@ -27,8 +27,6 @@ public class ClipboardApplication extends Application {
     private static final String[] PROP_LIST = {"app.properties"};
     private static String serverAddress = null;
     private static int serverPort;
-    private static String serverPublicKeyStorePass;
-    private static String clientPrivateKeyStorePass;
     public Preferences pref = null;
     private ClipboardConnector clipboardConnector = null;
     private ClipboardListener clipboardListener = null;
@@ -49,8 +47,6 @@ public class ClipboardApplication extends Application {
         loadProperties(PROP_LIST);
         serverAddress = getString(R.string.serverHostName);
         serverPort = getResources().getInteger(R.integer.serverPort);
-        serverPublicKeyStorePass = getString(R.string.serverPublicKeyStorePass);
-        clientPrivateKeyStorePass = getString(R.string.clientPrivateKeyStorePass);
     }
 
     public User getUser() {
@@ -94,25 +90,11 @@ public class ClipboardApplication extends Application {
     public void establishConnection() {
         Log.d(TAG, "Establishing connection to server...");
 
-        InputStream clientPrivateKeyStoreIns = null;
-        InputStream serverPublicKeyStoreIns = null;
-
         try {
-            clientPrivateKeyStoreIns = getResources().openRawResource(R.raw.client_private);
-            serverPublicKeyStoreIns = getResources().openRawResource(R.raw.server_public);
-
-            KeyStoreManager keyStoreManager = new KeyStoreBuilder()
-                    .privateKeyStorePass(clientPrivateKeyStorePass)
-                    .privateKeyStoreInputStream(clientPrivateKeyStoreIns)
-                    .publicKeyStorePass(serverPublicKeyStorePass)
-                    .publicKeyStoreInputStream(serverPublicKeyStoreIns)
-                    .build();
-
             // Listen for clipboard content from other clients
             clipboardConnector = new ClipboardConnector()
                     .server(serverAddress)
                     .port(serverPort)
-                    .keyStoreManager(keyStoreManager)
                     .socketListener(new SocketListener() {
 
                         @Override
@@ -145,16 +127,6 @@ public class ClipboardApplication extends Application {
         } catch (Exception e) {
             Log.e(TAG, "Unable to establish connection", e);
         } finally {
-            closeStream(clientPrivateKeyStoreIns);
-            closeStream(serverPublicKeyStoreIns);
-        }
-    }
-
-    private void closeStream(InputStream inputStream) {
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to close stream.", e);
         }
     }
 

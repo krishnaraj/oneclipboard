@@ -9,7 +9,7 @@ An Android + Desktop app to sync clipboard automatically
 3. Android Tools 19.0
 4. Android SDK 16
 
-###SSL
+###SSL ( currently removed because of http://stackoverflow.com/q/35609460/206292 )
 Before building, the public and private keys need to be generated for use with SSLSocket. Use 'generatekeys.sh'
 or 'generatekeys.bat' for the same.
 

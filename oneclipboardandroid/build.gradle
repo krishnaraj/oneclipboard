@@ -29,25 +29,12 @@ android {
         versionName "1.1.0"
         resValue("string", "serverHostName", project.serverHostName)
         resValue("integer", "serverPort", project.serverPort)
-        resValue("string", "serverPublicKeyStorePass", project.serverPublicKeyStorePass)
-        resValue("string", "clientPrivateKeyStorePass", project.clientPrivateKeyStorePass)
     }
 
     lintOptions {
         abortOnError false
     }
 
-    applicationVariants.all { variant ->
-      variant.mergeResources.doLast {
-          copy {
-            from ([project.clientPrivateKeyStorePath, project.serverPublicKeyStorePath])
-            into ("$outputDir/raw")
-            rename { filename ->
-                filename.replace '.', '_'
-            }
-          }
-      }
-   }
 }
 
 dependencies {

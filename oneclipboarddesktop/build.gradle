@@ -38,6 +38,7 @@ processResources {
     filesMatching('**/config.properties') {
         filter ReplaceTokens, tokens: [
                 "serverHostName"           : project.serverHostName,
+                "serverPort"               : project.serverPort,
                 "version"                  : version
         ]
     }

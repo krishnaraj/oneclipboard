@@ -3,7 +3,7 @@ package com.cb.oneclipboard;
 import android.app.Activity;
 import android.content.*;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
@@ -63,21 +63,21 @@ public class HomePageActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         ClipboardApplication app = (ClipboardApplication) getApplication();
+        int itemId = item.getItemId();
 
-        switch (item.getItemId()) {
-            case R.id.menu_quit:
-                stopService();
-                finish();
-                return true;
-            case R.id.menu_logout:
-                stopService();
-                app.pref.clear();
-                Intent login = new Intent(this, MainActivity.class);
-                startActivity(login);
-                finish();
-            default:
-                return super.onOptionsItemSelected(item);
+        if (itemId == R.id.menu_quit) {
+            stopService();
+            finish();
+            return true;
+        } else if (itemId == R.id.menu_logout) {
+            stopService();
+            app.pref.clear();
+            Intent login = new Intent(this, MainActivity.class);
+            startActivity(login);
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public void stopService() {

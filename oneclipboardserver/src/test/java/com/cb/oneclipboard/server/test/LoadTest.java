@@ -30,25 +30,29 @@ public class LoadTest {
 		final CountDownLatch latch = new CountDownLatch(NO_OF_CLIENTS);
 		
 		for (int i = 0; i < NO_OF_CLIENTS; i++) {
-			ClipboardConnector.connect(serverAddress, serverPort, user, new SocketListener() {
+			new ClipboardConnector()
+					.server(serverAddress)
+					.port(serverPort)
+					.socketListener(new SocketListener() {
 
-				@Override
-				public void onMessageReceived(Message message) {
-					// TODO Auto-generated method stub
+						@Override
+						public void onMessageReceived(Message message) {
+							// TODO Auto-generated method stub
 
-				}
+						}
 
-				@Override
-				public void onDisconnect() {
-					// TODO Auto-generated method stub
+						@Override
+						public void onDisconnect() {
+							// TODO Auto-generated method stub
 
-				}
+						}
 
-				@Override
-				public void onConnect() {
-					latch.countDown();
-				}
-			});
+						@Override
+						public void onConnect() {
+							latch.countDown();
+						}
+					})
+					.connect();
 		}
 		
 		latch.await();

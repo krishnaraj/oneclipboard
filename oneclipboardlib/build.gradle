@@ -1,15 +1,21 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
+plugins {
+    id 'java'
+    id 'eclipse'
+}
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.7
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 version = '1.0'
 
 sourceSets.main.java.srcDirs = ['src']
 
 dependencies {
-    compile 'org.jasypt:jasypt:1.9.2'
+    implementation 'org.jasypt:jasypt:1.9.2'
 }

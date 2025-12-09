@@ -1,44 +1,36 @@
-apply plugin: 'com.android.application'
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-    }
-}
-
-repositories {
-    jcenter()
-    flatDir {
-        dirs 'libs'
-    }
+plugins {
+    id 'com.android.application'
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.0'
-    useLibrary 'org.apache.http.legacy'
+    namespace "com.cb.oneclipboard"
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.cb.oneclipboard"
-        minSdkVersion 16
-        targetSdkVersion 23
+        minSdk 24
+        targetSdk 34
         versionCode 120
         versionName "1.2.0"
-        resValue("string", "serverHostName", project.serverHostName)
-        resValue("integer", "serverPort", project.serverPort)
+
+        // Resource values will be populated from gradle.properties or command line
+        resValue("string", "serverHostName", project.findProperty("serverHostName") ?: "localhost")
+        resValue("integer", "serverPort", project.findProperty("serverPort") ?: "4545")
     }
 
-    lintOptions {
+    lint {
         abortOnError false
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 }
 
 dependencies {
-    compile project(':oneclipboardlib')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    implementation project(':oneclipboardlib')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 }

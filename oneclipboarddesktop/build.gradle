@@ -1,75 +1,91 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-buildscript {
-    repositories { jcenter() }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-        classpath 'com.bmuschko:gradle-izpack-plugin:2.1'
-    }
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'eclipse'
+    id 'application'
+    id 'com.bmuschko.izpack' version '3.2'
 }
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+}
 
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'eclipse'
-apply plugin: 'application'
-apply plugin: 'com.bmuschko.izpack'
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
-sourceCompatibility = 1.7
 version = '1.2.0'
 
-applicationName = 'OneClipboard'
-def jarName = applicationName + '.jar'
+application {
+    applicationName = 'OneClipboard'
+    mainClass = "com.cb.oneclipboard.desktop.Client"
+}
+
+def jarName = application.applicationName + '.jar'
 
 dependencies {
-    compile 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.46'
-    compile project(':oneclipboardlib')
+    implementation 'com.outr.javasysmon:javasysmon_2.10:0.3.4'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    implementation project(':oneclipboardlib')
     izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
 sourceSets.main.resources.srcDirs = ['src/main/resources']
 
-mainClassName = "com.cb.oneclipboard.desktop.Client"
-
 processResources {
     filesMatching('**/config.properties') {
         filter ReplaceTokens, tokens: [
-                "serverHostName"           : project.serverHostName,
-                "serverPort"               : project.serverPort,
+                "serverHostName"           : project.findProperty("serverHostName") ?: "localhost",
+                "serverPort"               : project.findProperty("serverPort") ?: "4545",
                 "version"                  : version
         ]
-    }
-}
-
-distZip {
-    archiveName applicationName + ".zip"
-    // Avoid parent directory in zip
-    eachFile { file ->
-        String path = file.relativePath
-        file.setPath(path.substring(path.indexOf("/") + 1, path.length()))
     }
 }
 
 task izPackAssemble(type: Copy) {
     from 'src/main/izpack'
     into "$buildDir/assemble/izpack"
+    // Apply property substitution during the copy
+    filter(ReplaceTokens, tokens: [
+        'app.name'           : application.applicationName,
+        'app.winStartScript' : "bin\\${application.applicationName}.bat".toString(),
+        'app.unixStartScript': "bin/${application.applicationName}".toString(),
+        'app.version'        : version,
+        'app.archive.path'   : "${distZip.archiveFile.get().asFile.name}".toString(),
+        'app.author.name'    : project.findProperty("authorName") ?: "",
+        'app.author.email'   : project.findProperty("authorEmail") ?: "",
+        'app.website'        : project.findProperty("appWebsite") ?: "",
+        'app.logo'           : "logo.png",
+        'app.ico'            : "logo.ico"
+    ])
 }
 
+task copyExtraFiles(type: Copy) {
+    from rootDir
+    include "logo.png", "logo.ico"
+    into "$buildDir/assemble/izpack"
+}
+
+task copyDistZip(type: Copy) {
+    dependsOn distZip
+    from distZip.archiveFile
+    into "$buildDir/assemble/izpack"
+}
+
+izPackAssemble.dependsOn copyExtraFiles
+izPackAssemble.dependsOn copyDistZip
+
 izpack {
-    izPackCreateInstaller.dependsOn distZip, izPackAssemble
-    appProperties = [
-            'app.name'           : applicationName,
-            'app.winStartScript' : "bin\\$applicationName" + '.bat',
-            'app.unixStartScript': "bin/$applicationName",
-            'app.version'        : version,
-            'app.archive.path'   : "$buildDir/distributions/$distZip.archiveName",
-            'app.author.name'    : project.authorName,
-            'app.author.email'   : project.authorEmail,
-            'app.website'        : project.appWebsite,
-            'app.logo'           : rootDir.absolutePath + File.separator + "logo.png",
-            'app.ico'           : rootDir.absolutePath + File.separator + "logo.ico"
-    ]
+    baseDir = file("$buildDir/assemble/izpack")
+    installFile = file("$buildDir/assemble/izpack/install.xml")
+    outputFile = file("$buildDir/distributions/${application.applicationName}-installer.jar")
+}
+
+// Ensure izPackCreateInstaller depends on our assembly task
+tasks.named('izPackCreateInstaller').configure {
+    dependsOn izPackAssemble
 }

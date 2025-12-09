@@ -2,13 +2,24 @@
 
 buildscript {
     repositories {
+        google()
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'net.saliman:gradle-properties-plugin:1.4.4'
+        classpath 'com.android.tools.build:gradle:8.3.0'
+        classpath 'net.saliman:gradle-properties-plugin:1.5.2' // Updated version compatible with newer Gradle
     }
+}
+
+plugins {
+    id 'net.saliman.properties' version '1.5.2' apply false
 }
 
 allprojects {
     apply plugin: 'net.saliman.properties'
+    repositories {
+        google()
+        mavenCentral()
+    }
 }

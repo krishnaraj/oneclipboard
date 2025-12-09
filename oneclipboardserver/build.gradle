@@ -1,31 +1,31 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
-buildscript {
-  repositories { jcenter() }
-  dependencies {
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
-  }
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'eclipse'
+    id 'application'
 }
-
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'eclipse'
-apply plugin: 'application'
 
 repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 1.7
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
 version = '1.2.0'
 
 dependencies {
-    compile project(':oneclipboardlib')
-    compile 'org.apache.commons:commons-lang3:3.4'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.46'
+    implementation project(':oneclipboardlib')
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java']
 sourceSets.main.resources.srcDirs = ['src/main/resources']
 
-mainClassName = "com.cb.oneclipboard.server.Server"
+application {
+    mainClass = "com.cb.oneclipboard.server.Server"
+}

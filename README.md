@@ -1,49 +1,66 @@
-oneclipboard
-============
+# OneClipboard
 
-An Android + Desktop app to sync clipboard automatically
+OneClipboard is a cross-platform clipboard synchronization tool.
 
-###Requirements
-1. Java 1.7+
-2. Gradle 1.12
-3. Android Tools 19.0
-4. Android SDK 16
+## Modules
 
-###SSL ( currently removed because of http://stackoverflow.com/q/35609460/206292 )
-Before building, the public and private keys need to be generated for use with SSLSocket. Use 'generatekeys.sh'
-or 'generatekeys.bat' for the same.
+*   **oneclipboardandroid**: Android client.
+*   **oneclipboarddesktop**: Desktop client (Windows/Linux/Mac).
+*   **oneclipboardserver**: Relay server.
+*   **oneclipboardlib**: Shared library.
 
-**NOTE:** The keystore is of type BKS and the JCE policy files might need to installed for the scripts to work.
-Refer - http://yaragalla.blogspot.in/2013/05/how-to-create-ssl-serversocket-on.html
+## Requirements
 
-###Build Instructions
-```shell
-gradle :oneclipboardlib:build
-gradle :oneclipboardandroid:build
-gradle :oneclipboarddesktop:build
-gradle :oneclipboardserver:build
+*   **Java**: JDK 21 or later is required for building the server and desktop clients.
+    *   Server and Desktop modules target Java 21.
+    *   Shared library and Android module target Java 17 for Android compatibility.
+*   **Android SDK**: Android SDK Platform 34 (UpsideDownCake) is required.
+
+## Building
+
+The project uses Gradle.
+
+### Command Line
+
+```bash
+# Build all modules
+./gradlew build
+
+# Build specific module
+./gradlew oneclipboardserver:build
+./gradlew oneclipboarddesktop:build
+./gradlew oneclipboardandroid:build
 ```
 
-####Generate Eclipse Project Files
-```shell
-gradle :oneclipboardlib:eclipse
-gradle :oneclipboardandroid:eclipse
-gradle :oneclipboarddesktop:eclipse
-gradle :oneclipboardserver:eclipse
+### Configuration
+
+Create `gradle-local.properties` in the root directory to override default properties (e.g., keys, hostnames) without committing them.
+
+Example `gradle-local.properties`:
+
+```properties
+serverHostName=my.server.com
+serverPort=4545
 ```
 
-####Creating Fat Jar
-A single runnable jar can be created for the desktop and server with the following commands:
-```shell
-gradle :oneclipboarddesktop:shadowJar
-gradle :oneclipboardserver:shadowJar
+## Running
+
+### Server
+
+```bash
+./gradlew oneclipboardserver:run
 ```
-This should create a *-all.jar under build/libs.
 
-###Usage
-1. Run oneclipboardserver - gradle :oneclipboardserver:run
-2. Run oneclipboarddesktop - gradle :oneclipboarddesktop:run
-3. Install oneclipboardandroid/build/apk/oneclipboardandroid-debug-unaligned.apk on your Android device.
-4. Copy some text on your desktop/android, paste it on your android/desktop.
+### Desktop Client
 
-Note: You can use any username/password combination but make sure its the same on all the devices.
+```bash
+./gradlew oneclipboarddesktop:run
+```
+
+### Android Client
+
+Deploy the APK generated in `oneclipboardandroid/build/outputs/apk/`.
+
+## License
+
+[License Information]
